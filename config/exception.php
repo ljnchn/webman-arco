@@ -13,5 +13,5 @@
  */
 
 return [
-    '' => support\exception\ApiHander::class,
+    '' => support\exception\AdminHandle::class,
 ];

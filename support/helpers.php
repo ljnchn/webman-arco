@@ -24,6 +24,7 @@ use Workerman\Worker;
 use Webman\App;
 use Webman\Config;
 use Webman\Route;
+use App\Admin\User;
 
 // Phar support.
 if (is_phar()) {
@@ -477,4 +478,12 @@ function cpu_count()
         }
     }
     return $count > 0 ? $count : 4;
+}
+
+/**
+ * @return User
+ */
+function user(): User
+{
+    return User::getInstance();
 }

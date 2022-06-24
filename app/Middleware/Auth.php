@@ -6,7 +6,6 @@ use Exception;
 use Webman\MiddlewareInterface;
 use Webman\Http\Response;
 use Webman\Http\Request;
-use support\Redis;
 
 /**
  * Class Auth
@@ -14,8 +13,20 @@ use support\Redis;
  */
 class Auth implements MiddlewareInterface
 {
+    /**
+     * @throws Exception
+     */
     public function process(Request $request, callable $handler): Response
     {
+        // 处理跨域
+        $response = $request->method() == 'OPTIONS' ? response('') : $handler($request);
+        $response->withHeaders([
+            'Access-Control-Allow-Credentials' => 'true',
+            'Access-Control-Allow-Origin' => $request->header('Origin', '*'),
+            'Access-Control-Allow-Methods' => '*',
+            'Access-Control-Allow-Headers' => '*',
+        ]);
+        // 判断授权
         if (!$request->header('Authorization')) {
             throw new Exception('no auth token');
         }
@@ -24,14 +35,10 @@ class Auth implements MiddlewareInterface
         if (!$token) {
             return failJson('请先登录');
         }
-        $tid = $request->tid;
         // 登录已失效
-        $uid = Redis::get("bearer:$tid:" . $token);
-        if (!$uid) {
-            return failJson('登陆已失效');
+        if (!User()->isLogin($token)) {
+            return failJson('登陆已失效', [$token]);
         }
-        $request->token = $token;
-        $request->uid = $uid;
         // 请求继续穿越
         return $handler($request);
     }
