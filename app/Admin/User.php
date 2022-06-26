@@ -13,9 +13,13 @@ class User
     protected int $uid;
     protected string $token;
 
-    protected function __construct() { }
+    protected function __construct()
+    {
+    }
 
-    protected function __clone() { }
+    protected function __clone()
+    {
+    }
 
     /**
      * 静态工厂方法，返还此类的唯一实例
@@ -23,7 +27,7 @@ class User
     public static function getInstance(): ?User
     {
         if (is_null(self::$_instance)) {
-             self::$_instance = new self();
+            self::$_instance = new self();
         }
 
         return self::$_instance;
@@ -36,27 +40,27 @@ class User
         return $_instance->$method(...$args);
     }
 
-    public  function getUid(): int
+    public function getUid(): int
     {
         return $this->uid;
     }
 
-    public  function setUid($uid)
+    public function setUid($uid): void
     {
         $this->uid = $uid;
     }
 
-    public  function getToken(): string
+    public function getToken(): string
     {
         return $this->token;
     }
 
-    public  function setToken($token)
+    public function setToken($token): void
     {
         $this->token = $token;
     }
 
-    public  function isLogin($token): bool
+    public function isLogin($token): bool
     {
         // 登录已失效
         $uid = Redis::get("bearer:" . $token);
