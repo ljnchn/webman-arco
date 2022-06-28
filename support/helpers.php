@@ -485,5 +485,8 @@ function cpu_count()
  */
 function user(): User
 {
-    return User::getInstance();
+    if (!request()->user_instance) {
+        request()->user_instance = new User();
+    }
+    return request()->user_instance;
 }

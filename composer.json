@@ -38,7 +38,8 @@
     "php-di/php-di": "^6.4",
     "doctrine/annotations": "^1.13",
     "symfony/translation": "^6.0",
-    "symfony/cache": "^6.0"
+    "symfony/cache": "^6.0",
+    "webman/log": "^1.0"
   },
   "suggest": {
     "ext-event": "For better performance. "

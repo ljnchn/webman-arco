@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Service;
+namespace App\Admin\Service;
 
-use App\Model\SysMenu;
-use App\Model\SysRole;
-use App\Model\SysRoleMenu;
 use support\Cache;
+use support\Db;
 
 class RoleService
 {
@@ -21,7 +19,7 @@ class RoleService
         $roleList = $this->getRoleList();
         $roleInfo = [];
         foreach ($roleList as $role) {
-            if ($role['id'] == $roleId) {
+            if ($role['role_id'] == $roleId) {
                 $roleInfo = $role;
             }
         }
@@ -37,14 +35,13 @@ class RoleService
     {
         $cacheKey = $this->getCacheKey('list');
         if (!$roleList = Cache::get($cacheKey)) {
-            $roleModels = SysRole::query()->orderBy('role_sort')->get();
+            $roleModels = Db::table('sys_role')->where('status', 0)->orderBy('role_sort')->get();
             $roleList = [];
             foreach ($roleModels as $roleModel) {
                 $roleList[] = [
-                    'id' => $roleModel->id,
+                    'role_id' => $roleModel->role_id,
                     'role_key' => $roleModel->role_key,
                     'role_name' => $roleModel->role_name,
-                    'role_desc' => $roleModel->role_desc,
                 ];
             }
             Cache::set($cacheKey, $roleList);
@@ -96,38 +93,7 @@ class RoleService
      */
     public function getRoleMenuList(int $roleId): array
     {
-        $cacheKey = $this->getCacheKey('menu:' . $roleId);
-        if (!$menuList = Cache::get($cacheKey)) {
-            $menuIds = SysRoleMenu::query()->where('role_id', $roleId)->get()->pluck('menu_id')->toArray();
-            $menuModels = SysMenu::query()->where('status', 1)->whereIn('type', [1, 2])->orderBy('sort')->find($menuIds);
-            $menuData = [];
-            foreach ($menuModels as $menuModel) {
-                $menuData[$menuModel->pid][] = [
-                    'id' => $menuModel->id,
-                    'name' => $menuModel->name,
-                    'path' => $menuModel->path,
-                    'perms' => $menuModel->perms,
-                    'icon' => $menuModel->icon,
-                    'type' => $menuModel->type,
-                ];
-            }
-            $menuList = [];
-            foreach ($menuModels as $menuModel) {
-                if ($menuModel->type == 1) {
-                    $menuList[] = [
-                        'id' => $menuModel->id,
-                        'name' => $menuModel->name,
-                        'path' => $menuModel->path,
-                        'perms' => $menuModel->perms,
-                        'icon' => $menuModel->icon,
-                        'type' => $menuModel->type,
-                        'items' => $menuData[$menuModel->id] ?? [],
-                    ];
-                }
-            }
-            Cache::set($cacheKey, $menuList);
-        }
-        return $menuList;
+        return [];
     }
 
     /**

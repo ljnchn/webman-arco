@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Service;
+namespace App\Admin\Service;
 
-use App\Model\SysUser;
+use App\Admin\User;
 use Exception;
+use support\Db;
 
 class UserService
 {
@@ -17,16 +18,18 @@ class UserService
     /**
      * @throws Exception
      */
-    public function getUserInfo($uid): array
+    public function getUserInfo(): array
     {
-        $userModel = SysUser::query()->find($uid);
+        $uid = user()->getUid();
+        $userModel = Db::table('sys_user')->where('user_id', $uid)->first();
+        $userRole = Db::table('sys_user_role')->where(['user_id' => $uid])->first();
         if (!$userModel) {
             throw new Exception('id no found');
         }
-        $roleInfo = $userModel->role_id ? $this->roleService->getRoleInfo($userModel->role_id) : [];
+        $roleInfo = $userRole->role_id ? $this->roleService->getRoleInfo($userRole->role_id) : [];
         return [
-            'accountId' => $userModel->id,
-            'name' => $userModel->nick_name,
+            'accountId' => $uid,
+            'name' => $userModel->user_name,
             'avatar' => '//lf1-xgcdn-tos.pstatp.com/obj/vcloud/vadmin/start.8e0e4855ee346a46ccff8ff3e24db27b.png',
             'email' => $userModel->email,
             'job' => 'frontend',
@@ -37,10 +40,10 @@ class UserService
             'locationName' => '北京',
             'introduction' => '人潇洒，性温存',
             'personalWebsite' => '',
-            'phone' => $userModel->phone,
+            'phone' => $userModel->phonenumber,
             'registrationDate' => '2013-05-10 12:10:00',
             'certification' => 1,
-            'role_id' => $userModel->role_id,
+            'role_id' => $userRole->role_id,
             'dept_id' => $userModel->dept_id,
             'role' => $roleInfo['role_key'] ?? 'user',
         ];
