@@ -15,11 +15,6 @@ class Index
      */
     private UserService $userService;
 
-    public function index(Request $request): Response
-    {
-        return successJson('用户ID：'. user()->getUid());
-    }
-
     public function login(Request $request): Response
     {
         $email = $request->post('email');
