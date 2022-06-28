@@ -9,11 +9,18 @@ use support\Response;
 
 class Index
 {
+
     /**
      * @Inject
      * @var userService
      */
     private UserService $userService;
+
+    public function index(Request $request): Response
+    {
+        return successJson('用户ID：' . user()->getUid());
+    }
+
 
     public function login(Request $request): Response
     {

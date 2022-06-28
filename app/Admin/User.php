@@ -10,12 +10,14 @@ class User
     protected int $uid = 0;
     protected string $token = '';
 
+
     public function getUid(): int
     {
         return $this->uid;
     }
 
-    public function setUid($uid)
+
+    public function setUid($uid): void
     {
         $this->uid = $uid;
     }
@@ -61,7 +63,7 @@ class User
         return $this->token;
     }
 
-    public function setToken($token)
+    public function setToken($token): void
     {
         $this->token = $token;
     }
