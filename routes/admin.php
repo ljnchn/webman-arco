@@ -9,5 +9,6 @@ Route::group('/admin/user/', function () {
     Route::post('info', [\App\Admin\Controller\Index::class, 'info']);
     Route::post('logout', [\App\Admin\Controller\Index::class, 'logout']);
 })->middleware([
+    App\Middleware\AccessControl::class,
     App\Middleware\Auth::class,
 ]);
