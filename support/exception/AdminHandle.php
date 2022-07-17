@@ -10,14 +10,6 @@ use Webman\Exception\ExceptionHandler;
 
 class AdminHandle extends ExceptionHandler
 {
-    public array $dontReport = [
-        BusinessException::class,
-    ];
-
-    public function report(Throwable $exception)
-    {
-        parent::report($exception);
-    }
 
     public function render(Request $request, Throwable $exception): Response
     {

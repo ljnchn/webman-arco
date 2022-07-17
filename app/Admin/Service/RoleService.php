@@ -88,12 +88,13 @@ class RoleService
     /**
      * 获取角色菜单列表
      *
-     * @param int $roleId
+     * @param array $roleIds
      * @return array
      */
-    public function getRoleMenuList(int $roleId): array
+    public function getRoleMenuList(array $roleIds): array
     {
-        return [];
+        $menuIds = Db::table('sys_role_menu')->whereIn('role_id', $roleIds)->get()->pluck('menu_id')->toArray();
+        return $menuIds;
     }
 
     /**

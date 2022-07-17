@@ -34,7 +34,33 @@ class User
         return true;
     }
 
-    public function login($email, $password): bool
+    /**
+     * 通过用户名，密码登录
+     * @param $username
+     * @param $password
+     * @return bool
+     */
+    public function loginUsername($username, $password): bool
+    {
+        $user = Db::table('sys_user')->where('username', $username)->first();
+        if (!$user) {
+            return false;
+        }
+        if (!password_verify($password, $user->password)) {
+            return false;
+        }
+        $uid = $user->user_id;
+        $this->afterLogin($uid);
+        return true;
+    }
+
+    /**
+     * 通过邮箱，密码登录
+     * @param $email
+     * @param $password
+     * @return bool
+     */
+    public function loginEmail($email, $password): bool
     {
         $user = Db::table('sys_user')->where('email', $email)->first();
         if (!$user) {
@@ -44,12 +70,17 @@ class User
             return false;
         }
         $uid = $user->user_id;
+        $this->afterLogin($uid);
+        return true;
+    }
+
+    public function afterLogin($uid): void
+    {
         $expired = config('common.auth.expired');
         $token = generateToken($uid . time());
         Redis::set("bearer:" . $token, $uid, 'EX', $expired);
         $this->setUid($uid);
         $this->setToken($token);
-        return true;
     }
 
     public function logout(): int

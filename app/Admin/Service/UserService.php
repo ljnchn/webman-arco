@@ -32,13 +32,13 @@ class UserService
             'name' => $userModel->user_name,
             'avatar' => '//lf1-xgcdn-tos.pstatp.com/obj/vcloud/vadmin/start.8e0e4855ee346a46ccff8ff3e24db27b.png',
             'email' => $userModel->email,
-            'job' => 'frontend',
-            'jobName' => '前端艺术家',
-            'organization' => 'Frontend',
-            'organizationName' => '前端',
+            'job' => 'Software Engender',
+            'jobName' => '开发工程师',
+            'organization' => 'Backend',
+            'organizationName' => '后端',
             'location' => 'beijing',
             'locationName' => '北京',
-            'introduction' => '人潇洒，性温存',
+            'introduction' => '相见不如怀念',
             'personalWebsite' => '',
             'phone' => $userModel->phonenumber,
             'registrationDate' => '2013-05-10 12:10:00',
@@ -52,14 +52,15 @@ class UserService
     /**
      * @throws Exception
      */
-    public function getUserMenu($uid): array
+    public function getUserMenu(): array
     {
-        $userInfo = $this->getUserInfo($uid);
+        $userInfo = $this->getUserInfo();
         $roleId = $userInfo['role_id'];
         $role = $userInfo['role'];
         $userMenu = [];
         if ($roleId) {
-            $menuList = $this->roleService->getRoleMenuList($roleId);
+            $menuList = $this->roleService->getRoleMenuList([$roleId]);
+            return $menuList;
             foreach ($menuList as $menu) {
                 $children = [];
                 foreach ($menu['items'] as $item) {
