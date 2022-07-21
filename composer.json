@@ -39,7 +39,10 @@
     "doctrine/annotations": "^1.13",
     "symfony/translation": "^6.0",
     "symfony/cache": "^6.0",
-    "webman/log": "^1.0"
+    "webman/log": "^1.0",
+    "ramsey/uuid": "^4.3",
+    "s1syphos/php-simple-captcha": "^2.2",
+    "ljnchn/Captcha": "^1.1"
   },
   "suggest": {
     "ext-event": "For better performance. "

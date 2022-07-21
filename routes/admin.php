@@ -2,12 +2,12 @@
 
 use Webman\Route;
 
-Route::get('/admin/user/test', [\App\Admin\Controller\Test::class, 'index']);
-Route::post('/admin/user/login', [\App\Admin\Controller\Index::class, 'login']);
+Route::get('/admin/captchaImage', [\App\Admin\Controller\Index::class, 'captchaImage']);
+Route::post('/admin/login', [\App\Admin\Controller\Index::class, 'login']);
 
-Route::group('/admin/user/', function () {
-    Route::post('info', [\App\Admin\Controller\Index::class, 'info']);
-    Route::post('menu', [\App\Admin\Controller\Index::class, 'menu']);
+Route::group('/admin/', function () {
+    Route::post('getInfo', [\App\Admin\Controller\Index::class, 'getInfo']);
+    Route::post('getRouters', [\App\Admin\Controller\Index::class, 'getRouters']);
     Route::post('logout', [\App\Admin\Controller\Index::class, 'logout']);
 })->middleware([
     App\Middleware\AccessControl::class,

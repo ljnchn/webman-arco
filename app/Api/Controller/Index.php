@@ -9,12 +9,12 @@ class Index
 {
     public function index(Request $request): Response
     {
-        return successJson('hello webman start');
+        return successJson();
     }
 
     public function user(Request $request, $uid): Response
     {
-        return successJson('uid is ' . $uid);
+        return successJson([],'uid is ' . $uid);
     }
 
 }

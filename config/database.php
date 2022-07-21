@@ -24,7 +24,7 @@ return [
 
             'host' => getenv('DB_HOST'),
 
-            'port' => 3306,
+            'port' => getenv('DB_PORT'),
 
             'database' => getenv('DB_DATABASE'),
 
