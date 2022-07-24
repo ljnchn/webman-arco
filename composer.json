@@ -42,7 +42,8 @@
     "webman/log": "^1.0",
     "ramsey/uuid": "^4.3",
     "s1syphos/php-simple-captcha": "^2.2",
-    "ljnchn/Captcha": "^1.1"
+    "ljnchn/captcha": "^1.1",
+    "archtechx/enums": "^0.3.0"
   },
   "suggest": {
     "ext-event": "For better performance. "

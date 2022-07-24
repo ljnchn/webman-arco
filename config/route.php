@@ -12,6 +12,7 @@
  * @license   http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
+use App\Enums\HttpCode;
 use Webman\Route;
 
 Route::fallback(function(){
@@ -24,7 +25,7 @@ Route::fallback(function(){
     if (request()->method() == 'OPTIONS') {
         return response();
     }
-    return apiJson([], 404);
+    return apiJson([], HttpCode::NOTFOUND());
 });
 
 

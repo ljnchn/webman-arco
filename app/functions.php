@@ -4,16 +4,18 @@
  * Here is your custom functions.
  */
 
+use App\Enums\HttpCode;
 use support\Response;
 
 /**
  * @param $data
- * @param int $httpCode
+ * @param int|null $httpCode
  * @param int $options
  * @return Response
  */
-function apiJson($data, int $httpCode = 200, int $options = JSON_UNESCAPED_UNICODE): Response
+function apiJson($data, int $httpCode = null, int $options = JSON_UNESCAPED_UNICODE): Response
 {
+    $httpCode = $httpCode ?? HttpCode::SUCCESS();
     return new Response($httpCode, ['Content-Type' => 'application/json'], json_encode($data, $options));
 }
 
@@ -22,11 +24,12 @@ function apiJson($data, int $httpCode = 200, int $options = JSON_UNESCAPED_UNICO
  *
  * @param array $data
  * @param string $msg
- * @param integer $code
+ * @param int|null $code
  * @return Response
  */
-function successJson(array $data = [],string $msg = 'success', int $code = 200): Response
+function successJson(array $data = [],string $msg = 'success', int $code = null): Response
 {
+    $code = $code ?? HttpCode::SUCCESS();
     return apiJson(['code' => $code, 'msg' => $msg, 'data' => $data]);
 }
 
@@ -35,11 +38,12 @@ function successJson(array $data = [],string $msg = 'success', int $code = 200):
  *
  * @param string $msg
  * @param array $data
- * @param integer $code
+ * @param int|null $code
  * @return Response
  */
-function failJson(string $msg = 'fail', array $data = [], int $code = 500): Response
+function failJson(string $msg = 'fail', array $data = [], int $code = null): Response
 {
+    $code = $code ?? HttpCode::FAIL();
     return apiJson(['code' => $code, 'msg' => $msg, 'data' => $data]);
 }
 

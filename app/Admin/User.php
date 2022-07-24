@@ -42,7 +42,7 @@ class User
      */
     public function loginUsername($username, $password): bool
     {
-        $user = Db::table('sys_user')->where('username', $username)->first();
+        $user = Db::table('sys_user')->where('user_name', $username)->first();
         if (!$user) {
             return false;
         }

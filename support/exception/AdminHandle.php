@@ -2,6 +2,7 @@
 
 namespace support\exception;
 
+use App\Enums\HttpCode;
 use Webman\Http\Request;
 use Webman\Http\Response;
 use Throwable;
@@ -15,10 +16,10 @@ class AdminHandle extends ExceptionHandler
     {
         $code = $exception->getCode();
 
-        $json = ['code' => $code ? $code : 50000, 'msg' => $exception->getMessage()];
+        $json = ['code' => $code ?: HttpCode::FAIL(), 'msg' => $exception->getMessage()];
         $this->_debug && $json['traces'] = (string)$exception;
         return new Response(
-            200,
+            HttpCode::SUCCESS(),
             ['Content-Type' => 'application/json'],
             json_encode($json, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );

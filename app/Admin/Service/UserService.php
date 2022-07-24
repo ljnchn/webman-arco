@@ -2,7 +2,9 @@
 
 namespace App\Admin\Service;
 
-use App\Admin\User;
+use App\Enums\MenuType;
+use App\Enums\UserStatus;
+use DI\Annotation\Inject;
 use Exception;
 use support\Db;
 
@@ -16,78 +18,138 @@ class UserService
     private $roleService;
 
     /**
+     * @param $uid
+     * @return array
      * @throws Exception
      */
-    public function getUserInfo(): array
+    public function getUserInfo($uid): array
     {
-        $uid = user()->getUid();
-        $userModel = Db::table('sys_user')->where('user_id', $uid)->first();
-        $userRole = Db::table('sys_user_role')->where(['user_id' => $uid])->first();
-        if (!$userModel) {
-            throw new Exception('id no found');
+        $userModels = Db::table('sys_user')
+            ->leftJoin('sys_dept', 'sys_user.dept_id', '=', 'sys_dept.dept_id')
+            ->leftJoin('sys_user_role', 'sys_user.user_id', '=', 'sys_user_role.user_id')
+            ->leftJoin('sys_role', 'sys_user_role.role_id', '=', 'sys_role.role_id')
+            ->where('sys_user.user_id', $uid)
+            ->where('sys_user.status', UserStatus::NORMAL())
+            ->where('sys_user.del_flag', UserStatus::NORMAL())
+            ->get();
+        if (!$userModels) {
+            throw new Exception();
         }
-        $roleInfo = $userRole->role_id ? $this->roleService->getRoleInfo($userRole->role_id) : [];
+        $userData = [
+            'admin' => false,
+            'avatar' => $userModels[0]->avatar,
+            'email' => $userModels[0]->email,
+            'nickName' => $userModels[0]->nick_name,
+            'userName' => $userModels[0]->user_name,
+            'phonenumber' => $userModels[0]->phonenumber,
+            'userId' => $userModels[0]->user_id,
+            'remark' => $userModels[0]->remark,
+            'sex' => $userModels[0]->sex,
+            'status' => $userModels[0]->status,
+            'loginIp' => $userModels[0]->login_ip,
+            'login_date' => $userModels[0]->login_date,
+            'dept' => [
+                'ancestors' => $userModels[0]->ancestors,
+                'deptName' => $userModels[0]->dept_name,
+                'leader' => $userModels[0]->leader,
+                'phone' => $userModels[0]->phone,
+                'email' => $userModels[0]->email,
+            ],
+            'roles' => [],
+        ];
+        $roleIds = [];
+        $roleKeys = [];
+        foreach ($userModels as $userModel) {
+            $roleIds[] = $userModel->role_id;
+            $roleKeys[] = $userModel->role_key;
+            $userData['roles'][] = [
+                'admin' => $userModel->role_key == 'admin',
+                'roleName' => $userModel->role_name,
+                'roleKey' => $userModel->role_key,
+                'dataScope' => $userModel->data_scope,
+            ];
+        }
+        $permissions = [];
+        // 查找用户角色权限信息
+        $menuModels = Db::table('sys_role_menu')
+            ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id')
+            ->where('sys_menu.visible', MenuType::STATUS_NORMAL())
+            ->whereIn('sys_role_menu.role_id', $roleIds)
+            ->orderBy('sys_menu.order_num')
+            ->get();
+
+        foreach ($menuModels as $menuModel) {
+            if ($menuModel->perms) {
+                $permissions[] = $menuModel->perms;
+            }
+        }
+
         return [
-            'accountId' => $uid,
-            'name' => $userModel->user_name,
-            'avatar' => '//lf1-xgcdn-tos.pstatp.com/obj/vcloud/vadmin/start.8e0e4855ee346a46ccff8ff3e24db27b.png',
-            'email' => $userModel->email,
-            'job' => 'Software Engender',
-            'jobName' => '开发工程师',
-            'organization' => 'Backend',
-            'organizationName' => '后端',
-            'location' => 'beijing',
-            'locationName' => '北京',
-            'introduction' => '相见不如怀念',
-            'personalWebsite' => '',
-            'phone' => $userModel->phonenumber,
-            'registrationDate' => '2013-05-10 12:10:00',
-            'certification' => 1,
-            'role_id' => $userRole->role_id,
-            'dept_id' => $userModel->dept_id,
-            'role' => $roleInfo['role_key'] ?? 'user',
+            'user' => $userData,
+            'permissions' => $permissions,
+            'roles' => $roleKeys,
         ];
     }
 
-    /**
-     * @throws Exception
-     */
-    public function getUserMenu(): array
+    public function getRouters($uid): array
     {
-        $userInfo = $this->getUserInfo();
-        $roleId = $userInfo['role_id'];
-        $role = $userInfo['role'];
-        $userMenu = [];
-        if ($roleId) {
-            $menuList = $this->roleService->getRoleMenuList([$roleId]);
-            return $menuList;
-            foreach ($menuList as $menu) {
-                $children = [];
-                foreach ($menu['items'] as $item) {
-                    $children[] = [
-                        'path' => $item['path'],
-                        'name' => $item['name'],
-                        'meta' => [
-                            'locale' => 'menu.' . $menu['perms'] . '.' . $item['perms'],
-                            'requiresAuth' => true,
-                            'roles' => [$role],
-                        ],
-                    ];
+        $menuModels = Db::table('sys_user_role')
+            ->leftJoin('sys_role_menu', 'sys_user_role.role_id', '=', 'sys_role_menu.role_id')
+            ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id')
+            ->where('sys_user_role.user_id', $uid)
+            ->where('sys_menu.visible', MenuType::STATUS_NORMAL())
+            ->whereIn('sys_menu.menu_type', [MenuType::FOLDER(), MenuType::MENU()])
+            ->orderBy('sys_menu.order_num')
+            ->get();
+
+        $menuData = $this->getMenuChildren($menuModels, 0);
+        // 暂时递归三层
+        foreach ($menuData as $key => $item) {
+            $children = $this->getMenuChildren($menuModels, $item['menu_id']);
+            if ($children) {
+                $menuData[$key]['children'] = $children;
+                foreach ($menuData[$key]['children'] as &$item2) {
+                    $children = $this->getMenuChildren($menuModels, $item2['menu_id']);
+                    if ($children) {
+                        $item2['children'] = $children;
+                    }
                 }
-                $userMenu[] = [
-                    'path' => $menu['path'],
-                    'name' => $menu['name'],
-                    'meta' => [
-                        'locale' => 'menu.' . $menu['perms'],
-                        'requiresAuth' => true,
-                        'roles' => [$role],
-                        'icon' => $menu['icon'],
-                        // 'order' => 1,
-                    ],
-                    'children' => $children,
-                ];
             }
         }
-        return $userMenu;
+        return $menuData;
     }
+
+    public function getMenuChildren(&$menuModels, $parentId): array
+    {
+        $children = [];
+        foreach ($menuModels as $key => $model) {
+            if ($model->parent_id == $parentId) {
+                $index = count($children);
+                $children[$index] = [
+                    'menu_id' => $model->menu_id,
+                    'hidden' => false,
+                    'component' => $model->component ?? 'Layout',
+                    'name' => ucfirst($model->path),
+                    'path' => '/' . $model->path,
+                    'redirect' => $model->is_frame == 0 ? $model->path : 'noRedirect',
+                    'meta' => [
+                        'title' => $model->menu_name,
+                        'icon' => $model->icon,
+                        'noCache' => $model->is_cache == 1,
+                        'link' => $model->is_frame ? null : $model->path,
+                    ],
+                ];
+                if ($parentId == 0) {
+                    $children[$index]['alwaysShow'] = true;
+                }
+                if ($model->is_frame == 0) {
+                    unset($children[$index]['alwaysShow']);
+                    $children[$index]['path'] = $model->path;
+                }
+                unset($menuModels[$key]);
+            }
+        }
+        return $children;
+    }
+
 }

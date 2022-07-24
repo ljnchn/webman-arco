@@ -4,11 +4,14 @@
 namespace App\Admin\Controller;
 
 use App\Admin\Service\UserService;
+use App\Enums\HttpCode;
 use support\Redis;
 use support\Request;
 use support\Response;
 use Illuminate\Support\Str;
 use Ljnchn\Captcha\CaptchaBuilder;
+use Ljnchn\Captcha\PhraseBuilder;
+use DI\Annotation\Inject;
 
 class Index
 {
@@ -23,16 +26,17 @@ class Index
     public function captchaImage(): Response
     {
         // 初始化验证码类
-        $builder = new CaptchaBuilder;
+        $phraseBuilder = new PhraseBuilder(4, '0123456789');
+        $builder = new CaptchaBuilder(null, $phraseBuilder);
         // 生成验证码
         $builder->build(100);
         // 将验证码的值存储到 redis 中
         $uuid = Str::uuid();
-        Redis::setEx('captcha:' . $uuid,300, strtolower($builder->getPhrase()));
+        Redis::setEx('captcha:' . $uuid, 300, strtolower($builder->getPhrase()));
         // 获得验证码图片二进制数据
         $imgContent = base64_encode($builder->get());
         return json([
-            'code' => 200,
+            'code' => HttpCode::SUCCESS(),
             'img' => $imgContent,
             'uuid' => $uuid,
             'msg' => 'success'
@@ -42,7 +46,7 @@ class Index
 
     public function login(Request $request): Response
     {
-        $email = $request->post('username');
+        $username = $request->post('username');
         $password = $request->post('password');
         $code = $request->post('code');
         $uuid = $request->post('uuid');
@@ -58,13 +62,17 @@ class Index
         if ($redisCode != $code) {
             return failJson('验证码错误');
         }
-        if (!$email || !$password) {
+        if (!$username || !$password) {
             return failJson('邮箱或密码不能为空');
         }
-        if (!user()->loginEmail($email, $password)) {
+        if (!user()->loginUsername($username, $password)) {
             return failJson('登陆失败');
         }
-        return successJson(['token' => user()->getToken()], '登陆成功');
+        return json([
+            'code' => HttpCode::SUCCESS(),
+            'token' => user()->getToken(),
+            'msg' => '登陆成功'
+        ]);
     }
 
     public function logout(): Response
@@ -75,13 +83,15 @@ class Index
 
     public function getInfo(): Response
     {
-        $userInfo = $this->userService->getUserInfo();
-        return successJson($userInfo);
+        $userInfo = $this->userService->getUserInfo(user()->getUid());
+        $userInfo['code'] = HttpCode::SUCCESS();
+        $userInfo['msg'] = 'success';
+        return json($userInfo);
     }
 
     public function getRouters()
     {
-        return successJson($this->userService->getUserMenu());
+        return successJson($this->userService->getRouters(user()->getUid()));
     }
 
 }
