@@ -2,6 +2,7 @@
 
 use Webman\Route;
 
+Route::get('/admin/test', [\App\Admin\Controller\Test::class, 'index']);
 Route::get('/admin/captchaImage', [\App\Admin\Controller\Index::class, 'captchaImage']);
 Route::post('/admin/login', [\App\Admin\Controller\Index::class, 'login']);
 

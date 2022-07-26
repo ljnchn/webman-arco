@@ -4,18 +4,11 @@ namespace App\Admin\Service;
 
 use App\Enums\MenuType;
 use App\Enums\UserStatus;
-use DI\Annotation\Inject;
 use Exception;
 use support\Db;
 
 class UserService
 {
-
-    /**
-     * @Inject
-     * @var RoleService
-     */
-    private $roleService;
 
     /**
      * @param $uid
