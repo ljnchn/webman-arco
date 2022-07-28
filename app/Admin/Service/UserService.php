@@ -3,6 +3,7 @@
 namespace App\Admin\Service;
 
 use App\Enums\MenuType;
+use App\Enums\DictType;
 use App\Enums\UserStatus;
 use Exception;
 use support\Db;
@@ -123,7 +124,7 @@ class UserService
                     'hidden' => false,
                     'component' => $model->component ?? 'Layout',
                     'name' => ucfirst($model->path),
-                    'path' => '/' . $model->path,
+                    'path' => ($parentId == 0 ? '/' : '') . $model->path,
                     'redirect' => $model->is_frame == 0 ? $model->path : 'noRedirect',
                     'meta' => [
                         'title' => $model->menu_name,

@@ -55,24 +55,30 @@ class Index
         if (!$code || !$uuid) {
             return failJson('验证码不能为空');
         }
-        $redisCode = Redis::get('captcha:' . $uuid);
-        if (!$redisCode) {
-            return failJson('验证码已失效');
-        }
-        if ($redisCode != $code) {
-            return failJson('验证码错误');
-        }
         if (!$username || !$password) {
             return failJson('邮箱或密码不能为空');
         }
+        $redisCode = Redis::get('captcha:' . $uuid);
+        if (!$redisCode) {
+            return $this->failLogin($username, '验证码已失效');
+        }
+        if ($redisCode != $code) {
+            return $this->failLogin($username, '验证码错误');
+        }
         if (!user()->loginUsername($username, $password)) {
-            return failJson('登陆失败');
+            return $this->failLogin($username, '登陆失败');
         }
         return json([
             'code' => HttpCode::SUCCESS(),
             'token' => user()->getToken(),
             'msg' => '登陆成功'
         ]);
+    }
+
+    public function failLogin($username, $msg): Response
+    {
+        user()->loginLog($username, 1, $msg);
+        return failJson($msg);
     }
 
     public function logout(): Response

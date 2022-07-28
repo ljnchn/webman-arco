@@ -89,19 +89,15 @@ class User
             'login_date' => Carbon::now(),
         ]);
         // 登陆日志
-        $this->loginLog($userName, 0, 'success');
+        $this->loginLog($userName, 0, '登陆成功');
     }
 
     public function loginLog($userName, $status, $msg = '') {
         // 登陆记录
         $ip = Request()->getRealIp();
-        $os = trim('"', Request()->header('sec-ch-ua-platform'));
+        $os = trim(Request()->header('sec-ch-ua-platform'), '"');
         // todo 分析 user-agent
         $browser = 'Edge';
-        Db::table('sys_user')->where('user_id', $uid)->update([
-            'login_ip' => $ip,
-            'login_date' => Carbon::now(),
-        ]);
         Db::table('sys_user_login')->insert([
             'user_name' => $userName,
             'ipaddr' => $ip,
