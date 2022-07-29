@@ -117,12 +117,20 @@ class UserService
     {
         $children = [];
         foreach ($menuModels as $key => $model) {
+            $component = 'Layout';
+            if ($model->component) {
+                $component = $model->component;
+            } elseif ($parentId != 0 && $model->is_frame == 0 ) {
+                $component = 'InnerLink';
+            } elseif ($parentId != 0 && $model->menu_type == MenuType::FOLDER()) {
+                $component = 'ParentView';
+            }
             if ($model->parent_id == $parentId) {
                 $index = count($children);
                 $children[$index] = [
                     'menu_id' => $model->menu_id,
                     'hidden' => false,
-                    'component' => $model->component ?? 'Layout',
+                    'component' => $component,
                     'name' => ucfirst($model->path),
                     'path' => ($parentId == 0 ? '/' : '') . $model->path,
                     'redirect' => $model->is_frame == 0 ? $model->path : 'noRedirect',

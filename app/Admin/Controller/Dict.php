@@ -27,7 +27,7 @@ class Dict
                 'dictLabel' => $row->dict_label,
                 'dictType' => $row->dict_type,
                 'dictValue' => $row->dict_value,
-                'listClass' => $row->dict_list_class,
+                'listClass' => $row->list_class,
                 'css_class' => $row->css_class,
                 'remark' => $row->remark,
                 'status' => $row->status,
