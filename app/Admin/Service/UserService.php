@@ -6,6 +6,8 @@ use App\Enums\MenuType;
 use App\Enums\DictType;
 use App\Enums\UserStatus;
 use Exception;
+use JetBrains\PhpStorm\ArrayShape;
+use support\Cache;
 use support\Db;
 
 class UserService
@@ -18,6 +20,10 @@ class UserService
      */
     public function getUserInfo($uid): array
     {
+        $cacheKey = 'userInfo' . $uid;
+        if ($cache = Cache::get($cacheKey)) {
+            return $cache;
+        }
         $userModels = Db::table('sys_user')
             ->leftJoin('sys_dept', 'sys_user.dept_id', '=', 'sys_dept.dept_id')
             ->leftJoin('sys_user_role', 'sys_user.user_id', '=', 'sys_user_role.user_id')
@@ -77,12 +83,14 @@ class UserService
                 $permissions[] = $menuModel->perms;
             }
         }
-
-        return [
+        $data = [
             'user' => $userData,
             'permissions' => $permissions,
             'roles' => $roleKeys,
         ];
+        Cache::set($cacheKey, $data);
+
+        return $data;
     }
 
     public function getRouters($uid): array
@@ -120,7 +128,7 @@ class UserService
             $component = 'Layout';
             if ($model->component) {
                 $component = $model->component;
-            } elseif ($parentId != 0 && $model->is_frame == 0 ) {
+            } elseif ($parentId != 0 && $model->is_frame == 0) {
                 $component = 'InnerLink';
             } elseif ($parentId != 0 && $model->menu_type == MenuType::FOLDER()) {
                 $component = 'ParentView';

@@ -13,6 +13,7 @@
  */
 
 return [
+    'trace' => true,
     'auth' => [
         'key' => getenv('AUTH_KEY'),
         'alg' => 'sha256',

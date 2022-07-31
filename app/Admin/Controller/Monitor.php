@@ -12,11 +12,11 @@ class Monitor
     public function loginInfo(Request $request): Response
     {
         $query = Db::table('sys_user_login');
-        if ($request->get('status') >= 0) {
+        if ($request->get('status') != null) {
             $query->where('status', $request->get('status'));
         }
         if ($request->get('userName')) {
-            $query->where('user_name', 'link', $request->get('userName'));
+            $query->where('user_name', $request->get('user_name'));
         }
         $pagination = $query->paginate($request->pageSize, [
             'info_id as infoId',

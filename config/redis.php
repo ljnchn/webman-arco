@@ -19,10 +19,4 @@ return [
         'port' => getenv('REDIS_PORT'),
         'database' => getenv('REDIS_DATABASE'),
     ],
-    'remote' => [
-        'host' => 'apn1-teaching-kangaroo-32604.upstash.io',
-        'password' => '4d8a9e265fbd4e5aa3c445245c9a8178',
-        'port' => 32604,
-        'database' => 0,
-    ],
 ];
