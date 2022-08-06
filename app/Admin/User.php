@@ -95,7 +95,7 @@ class User
     public function loginLog($userName, $status, $msg = '') {
         // 登陆记录
         $ip = Request()->getRealIp();
-        $os = Request()->header('sec-ch-ua-platform') ? trim(Request()->header('sec-ch-ua-platform'), '"') : NULL;
+        $os = trim((string)Request()->header('sec-ch-ua-platform'), '"');
         // todo 分析 user-agent
         $browser = 'Edge';
         Db::table('sys_user_login')->insert([
