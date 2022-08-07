@@ -31,7 +31,12 @@ class Auth implements MiddlewareInterface
         }
         // 登录已失效
         if (!user()->isLogin($token)) {
-            return failJson('登陆已失效', [$token]);
+            return failJson('登陆已失效');
+        }
+        $userInfo = user()->getInfo();
+        $routeName = $request->route->getName();
+        if ($routeName && !in_array($routeName, $userInfo['permissions'])) {
+            return noAccessJson('无权限', $userInfo['permissions']);
         }
         // 请求继续穿越
         return $handler($request);

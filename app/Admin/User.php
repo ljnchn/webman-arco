@@ -2,26 +2,24 @@
 
 namespace App\Admin;
 
+use App\Admin\Service\UserService;
 use Carbon\Carbon;
+use Exception;
 use support\Db;
 use support\Redis;
 
 class User
 {
     protected int $uid = 0;
+    protected array $info = [];
     protected string $token = '';
 
-
-    public function getUid(): int
-    {
-        return $this->uid;
-    }
-
-    public function setUid($uid): void
-    {
-        $this->uid = $uid;
-    }
-
+    /**
+     * 验证登录 token 是否有效
+     * @param $token
+     * @return bool
+     * @throws Exception
+     */
     public function isLogin($token): bool
     {
         // 登录已失效
@@ -29,8 +27,11 @@ class User
         if (!$uid) {
             return false;
         }
+        $userService = new UserService();
+        $info = $userService->getUserInfo($uid);
         $this->setUid($uid);
         $this->setToken($token);
+        $this->setInfo($info);
         return true;
     }
 
@@ -72,48 +73,74 @@ class User
         return true;
     }
 
+    /**
+     * 登录后处理
+     * @param $user
+     * @return void
+     */
     public function afterLogin($user): void
     {
-        $uid = $user->user_id;
+        $uid      = $user->user_id;
         $userName = $user->user_name;
-
-        $expired = config('common.auth.expired');
-        $token = generateToken($uid . time());
+        $expired  = config('common.auth.expired');
+        $token    = generateToken($uid . time());
         Redis::set("bearer:" . $token, $uid, 'EX', $expired);
         $this->setUid($uid);
         $this->setToken($token);
         // 登陆记录
         $ip = Request()->getRealIp();
         Db::table('sys_user')->where('user_id', $uid)->update([
-            'login_ip' => $ip,
+            'login_ip'   => $ip,
             'login_date' => Carbon::now(),
         ]);
         // 登陆日志
         $this->loginLog($userName, 0, '登陆成功');
     }
 
-    public function loginLog($userName, $status, $msg = '') {
+    /**
+     * 记录登录日志
+     * @param string $userName
+     * @param string $status
+     * @param string $msg
+     * @return void
+     */
+    public function loginLog(string $userName, string $status, string $msg = ''): void
+    {
         // 登陆记录
         $ip = Request()->getRealIp();
         $os = Request()->header('sec-ch-ua-platform');
         // todo 分析 user-agent
         $browser = 'Edge';
         Db::table('sys_user_login')->insert([
-            'user_name' => $userName,
-            'ipaddr' => $ip,
+            'user_name'      => $userName,
+            'ipaddr'         => $ip,
             'login_location' => '',
-            'browser' => $browser,
-            'os' => $os,
-            'status' => $status,
-            'msg' => $msg,
-            'login_time' => Carbon::now(),
+            'browser'        => $browser,
+            'os'             => $os,
+            'status'         => $status,
+            'msg'            => $msg,
+            'login_time'     => Carbon::now(),
         ]);
     }
 
+    /**
+     * 退出登陆
+     * @return int
+     */
     public function logout(): int
     {
         $token = $this->getToken();
         return Redis::del("bearer:" . $token);
+    }
+
+    public function getUid(): int
+    {
+        return $this->uid;
+    }
+
+    public function setUid($uid): void
+    {
+        $this->uid = $uid;
     }
 
     public function getToken(): string
@@ -124,6 +151,16 @@ class User
     public function setToken($token): void
     {
         $this->token = $token;
+    }
+
+    public function getInfo(): array
+    {
+        return $this->info;
+    }
+
+    public function setInfo($info): void
+    {
+        $this->info = $info;
     }
 
 }

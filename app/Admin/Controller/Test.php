@@ -9,10 +9,15 @@ use support\Response;
 class Test
 {
 
-    public function index(Request $request): Response
+    public function index(Request $request, $param): Response
     {
         return successJson([
-            $request->header('sec-ch-ua-platform'),
+            'method' => $request->method(),
+            'url'    => $request->url(),
+            'path'   => $request->path(),
+            'param'  => $param,
+            'route'  => $request->route->getPath(),
+            'name'   => $request->route->getName(),
         ]);
     }
 

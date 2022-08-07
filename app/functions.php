@@ -47,6 +47,20 @@ function failJson(string $msg = 'fail', array $data = [], int $code = null): Res
     return apiJson(['code' => $code, 'msg' => $msg, 'data' => $data]);
 }
 
+/**
+ * 失败返回json
+ *
+ * @param string $msg
+ * @param array $data
+ * @param int|null $code
+ * @return Response
+ */
+function noAccessJson(string $msg = 'no access', array $data = [], int $code = null): Response
+{
+    $code = $code ?? HttpCode::NO_ACCESS();
+    return apiJson(['code' => $code, 'msg' => $msg, 'data' => $data]);
+}
+
 function getUserId()
 {
     $tenantId = request()->uid ?? false;

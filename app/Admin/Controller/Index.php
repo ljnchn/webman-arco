@@ -87,6 +87,9 @@ class Index
         return successJson();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getInfo(): Response
     {
         $userInfo = $this->userService->getUserInfo(user()->getUid());
@@ -95,7 +98,7 @@ class Index
         return json($userInfo);
     }
 
-    public function getRouters()
+    public function getRouters(): Response
     {
         return successJson($this->userService->getRouters(user()->getUid()));
     }

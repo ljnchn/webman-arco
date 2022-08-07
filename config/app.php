@@ -15,7 +15,7 @@
 use support\Request;
 
 return [
-    'debug' => true,
+    'debug' => getenv('DEBUG'),
     'default_timezone' => 'Asia/Shanghai',
     'request_class' => Request::class,
     'public_path' => base_path() . DIRECTORY_SEPARATOR . 'public',
