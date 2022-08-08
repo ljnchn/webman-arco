@@ -102,7 +102,7 @@ class TraceLog implements MiddlewareInterface
             'method' => $method,
             'url' => $url,
             'params' => $params,
-            'exec_time' => $execTime,
+            'exec_time' => round($execTime),
             'exception' => $exception,
             'created_time' => Carbon::now(),
         ]);
