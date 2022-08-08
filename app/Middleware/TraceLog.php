@@ -25,6 +25,7 @@ class TraceLog implements MiddlewareInterface
             return $handler($request);
         }
         static $initialized;
+        $this->items = array();
         $startTime = microtime(true);
         $ip = $request->getRealIp();
         $method = $request->method();
