@@ -8,12 +8,12 @@ use App\Enums\HttpCode;
 use support\Response;
 
 /**
- * @param $data
+ * @param array    $data
  * @param int|null $httpCode
- * @param int $options
+ * @param int      $options
  * @return Response
  */
-function apiJson($data, int $httpCode = null, int $options = JSON_UNESCAPED_UNICODE): Response
+function apiJson(array $data, int $httpCode = null, int $options = JSON_UNESCAPED_UNICODE): Response
 {
     $httpCode = $httpCode ?? HttpCode::SUCCESS();
     return new Response($httpCode, ['Content-Type' => 'application/json'], json_encode($data, $options));
@@ -22,12 +22,12 @@ function apiJson($data, int $httpCode = null, int $options = JSON_UNESCAPED_UNIC
 /**
  * 成功返回json
  *
- * @param array $data
- * @param string $msg
+ * @param array    $data
+ * @param string   $msg
  * @param int|null $code
  * @return Response
  */
-function successJson(array $data = [],string $msg = 'success', int $code = null): Response
+function successJson(array $data = [], string $msg = 'success', int $code = null): Response
 {
     $code = $code ?? HttpCode::SUCCESS();
     return apiJson(['code' => $code, 'msg' => $msg, 'data' => $data]);
@@ -36,8 +36,8 @@ function successJson(array $data = [],string $msg = 'success', int $code = null)
 /**
  * 失败返回json
  *
- * @param string $msg
- * @param array $data
+ * @param string   $msg
+ * @param array    $data
  * @param int|null $code
  * @return Response
  */
@@ -50,8 +50,8 @@ function failJson(string $msg = 'fail', array $data = [], int $code = null): Res
 /**
  * 失败返回json
  *
- * @param string $msg
- * @param array $data
+ * @param string   $msg
+ * @param array    $data
  * @param int|null $code
  * @return Response
  */
@@ -59,15 +59,6 @@ function noAccessJson(string $msg = 'no access', array $data = [], int $code = n
 {
     $code = $code ?? HttpCode::NO_ACCESS();
     return apiJson(['code' => $code, 'msg' => $msg, 'data' => $data]);
-}
-
-function getUserId()
-{
-    $tenantId = request()->uid ?? false;
-    if (!$tenantId) {
-        throw new \Exception('user id not null');
-    }
-    return $tenantId;
 }
 
 /**
@@ -82,4 +73,22 @@ function generateToken(string $data): string
     $alg = config('common.auth.alg');
 
     return hash_hmac($alg, $data, $key);
+}
+
+/**
+ * 将驼峰转化为下划线连接
+ * @param string $str
+ * @return string
+ */
+function handelParams(string $str): string
+{
+    $newStr = '';
+    for ($i=0; $i < strlen($str); $i++) {
+        if (preg_match('/[A-Z]/', $str[$i])) {
+            $newStr .= '_' . strtolower($str[$i]);
+        } else {
+            $newStr .= $str[$i];
+        }
+    }
+    return $newStr;
 }
