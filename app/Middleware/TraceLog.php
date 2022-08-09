@@ -54,7 +54,7 @@ class TraceLog implements MiddlewareInterface
                             'type' => 'mysql',
                             'connection' => $query->connectionName,
                             'command' => $log,
-                            'exec_time' => $query->time,
+                            'exec_time' => round($query->time, 2),
                         ];
                     });
                 } catch (\Throwable $e) {
@@ -77,7 +77,7 @@ class TraceLog implements MiddlewareInterface
                                 'type' => 'redis',
                                 'connection' => $command->connectionName,
                                 'command' => "$command->command('" . implode('\', \'', $command->parameters) . "')",
-                                'exec_time' => $command->time,
+                                'exec_time' => round($command->time, 2),
                             ];
                         });
                     } catch (\Throwable $e) {
@@ -103,7 +103,7 @@ class TraceLog implements MiddlewareInterface
             'method' => $method,
             'url' => $url,
             'params' => $params,
-            'exec_time' => round($execTime),
+            'exec_time' => round($execTime, 2),
             'exception' => $exception,
             'created_time' => Carbon::now(),
         ]);
