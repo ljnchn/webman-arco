@@ -1,5 +1,6 @@
 <?php
 
+use App\Admin\Controller\Dept;
 use App\Admin\Controller\Dict;
 use App\Admin\Controller\Index;
 use App\Admin\Controller\Monitor;
@@ -22,6 +23,11 @@ Route::group('/api/', function () {
     Route::get('system/dict/data/type/{type}', [Dict::class, 'getDictDataByType']);
 
     Route::get('monitor/logininfor/list', [Monitor::class, 'loginInfo'])->name('monitor:logininfor:query');
+
+    // 部门管理
+    Route::get('system/dept/list', [Dept::class, 'list'])->name('');
+    Route::post('system/dept', [Dept::class, 'add'])->name('');
+
 })->middleware([
     App\Middleware\AccessControl::class,
     App\Middleware\TraceLog::class,
