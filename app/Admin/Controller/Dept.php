@@ -45,7 +45,7 @@ class Dept
         }
         $parent = Db::table('sys_dept')->where('dept_id', $creatData['parent_id'])->first();
         $creatData['ancestors'] = $parent->ancestors . ',' . $creatData['parent_id'];
-//        $creatData['create_by'] = user()->getInfo()['user']->user_name;
+        $creatData['create_by'] = user()->getInfo()['user']['userName'];
         $creatData['create_time'] = Carbon::now();
         if (Db::table('sys_dept')->insert($creatData)) {
             return successJson();

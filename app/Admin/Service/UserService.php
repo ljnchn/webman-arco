@@ -3,10 +3,8 @@
 namespace App\Admin\Service;
 
 use App\Enums\MenuType;
-use App\Enums\DictType;
 use App\Enums\UserStatus;
 use Exception;
-use JetBrains\PhpStorm\ArrayShape;
 use support\Cache;
 use support\Db;
 
@@ -36,36 +34,36 @@ class UserService
             throw new Exception();
         }
         $userData = [
-            'admin' => false,
-            'avatar' => $userModels[0]->avatar,
-            'email' => $userModels[0]->email,
-            'nickName' => $userModels[0]->nick_name,
-            'userName' => $userModels[0]->user_name,
+            'admin'       => false,
+            'avatar'      => $userModels[0]->avatar,
+            'email'       => $userModels[0]->email,
+            'nickName'    => $userModels[0]->nick_name,
+            'userName'    => $userModels[0]->user_name,
             'phonenumber' => $userModels[0]->phonenumber,
-            'userId' => $userModels[0]->user_id,
-            'remark' => $userModels[0]->remark,
-            'sex' => $userModels[0]->sex,
-            'status' => $userModels[0]->status,
-            'loginIp' => $userModels[0]->login_ip,
-            'login_date' => $userModels[0]->login_date,
-            'dept' => [
+            'userId'      => $userModels[0]->user_id,
+            'remark'      => $userModels[0]->remark,
+            'sex'         => $userModels[0]->sex,
+            'status'      => $userModels[0]->status,
+            'loginIp'     => $userModels[0]->login_ip,
+            'login_date'  => $userModels[0]->login_date,
+            'dept'        => [
                 'ancestors' => $userModels[0]->ancestors,
-                'deptName' => $userModels[0]->dept_name,
-                'leader' => $userModels[0]->leader,
-                'phone' => $userModels[0]->phone,
-                'email' => $userModels[0]->email,
+                'deptName'  => $userModels[0]->dept_name,
+                'leader'    => $userModels[0]->leader,
+                'phone'     => $userModels[0]->phone,
+                'email'     => $userModels[0]->email,
             ],
-            'roles' => [],
+            'roles'       => [],
         ];
-        $roleIds = [];
+        $roleIds  = [];
         $roleKeys = [];
         foreach ($userModels as $userModel) {
-            $roleIds[] = $userModel->role_id;
-            $roleKeys[] = $userModel->role_key;
+            $roleIds[]           = $userModel->role_id;
+            $roleKeys[]          = $userModel->role_key;
             $userData['roles'][] = [
-                'admin' => $userModel->role_key == 'admin',
-                'roleName' => $userModel->role_name,
-                'roleKey' => $userModel->role_key,
+                'admin'     => $userModel->role_key == 'admin',
+                'roleName'  => $userModel->role_name,
+                'roleKey'   => $userModel->role_key,
                 'dataScope' => $userModel->data_scope,
             ];
         }
@@ -84,9 +82,9 @@ class UserService
             }
         }
         $data = [
-            'user' => $userData,
+            'user'        => $userData,
             'permissions' => $permissions,
-            'roles' => $roleKeys,
+            'roles'       => $roleKeys,
         ];
         Cache::set($cacheKey, $data);
 
@@ -134,19 +132,19 @@ class UserService
                 $component = 'ParentView';
             }
             if ($model->parent_id == $parentId) {
-                $index = count($children);
+                $index            = count($children);
                 $children[$index] = [
-                    'menu_id' => $model->menu_id,
-                    'hidden' => false,
+                    'menu_id'   => $model->menu_id,
+                    'hidden'    => false,
                     'component' => $component,
-                    'name' => ucfirst($model->path),
-                    'path' => ($parentId == 0 ? '/' : '') . $model->path,
-                    'redirect' => $model->is_frame == 0 ? $model->path : 'noRedirect',
-                    'meta' => [
-                        'title' => $model->menu_name,
-                        'icon' => $model->icon,
+                    'name'      => ucfirst($model->path),
+                    'path'      => ($parentId == 0 ? '/' : '') . $model->path,
+                    'redirect'  => $model->is_frame == 0 ? $model->path : 'noRedirect',
+                    'meta'      => [
+                        'title'   => $model->menu_name,
+                        'icon'    => $model->icon,
                         'noCache' => $model->is_cache == 1,
-                        'link' => $model->is_frame ? null : $model->path,
+                        'link'    => $model->is_frame ? null : $model->path,
                     ],
                 ];
                 if ($parentId == 0) {

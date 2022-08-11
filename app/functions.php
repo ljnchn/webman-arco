@@ -74,21 +74,3 @@ function generateToken(string $data): string
 
     return hash_hmac($alg, $data, $key);
 }
-
-/**
- * 将驼峰转化为下划线连接
- * @param string $str
- * @return string
- */
-function handelParams(string $str): string
-{
-    $newStr = '';
-    for ($i=0; $i < strlen($str); $i++) {
-        if (preg_match('/[A-Z]/', $str[$i])) {
-            $newStr .= '_' . strtolower($str[$i]);
-        } else {
-            $newStr .= $str[$i];
-        }
-    }
-    return $newStr;
-}

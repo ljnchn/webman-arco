@@ -43,7 +43,8 @@
     "ramsey/uuid": "^4.3",
     "s1syphos/php-simple-captcha": "^2.2",
     "ljnchn/captcha": "^1.1",
-    "archtechx/enums": "^0.3.0"
+    "archtechx/enums": "^0.3.0",
+    "illuminate/validation": "^9.24"
   },
   "suggest": {
     "ext-event": "For better performance. "
