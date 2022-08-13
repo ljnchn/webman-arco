@@ -5,6 +5,7 @@
  */
 
 use App\Enums\HttpCode;
+use Illuminate\Support\Str;
 use support\Response;
 
 /**
@@ -73,4 +74,18 @@ function generateToken(string $data): string
     $alg = config('common.auth.alg');
 
     return hash_hmac($alg, $data, $key);
+}
+
+/**
+ * 返回驼峰格式的属性数组
+ * @param $attributes
+ * @return array
+ */
+function getCamelAttributes($attributes): array
+{
+    $camelAttributes = [];
+    foreach ($attributes as $k => $v) {
+        $camelAttributes[Str::camel($k)] = $v;
+    }
+    return $camelAttributes;
 }

@@ -3,31 +3,29 @@
 
 namespace App\Admin\Controller;
 
+use App\Admin\Service\MenuService;
 use Carbon\Carbon;
+use DI\Annotation\Inject;
 use Illuminate\Support\Str;
-use support\Db;
 use support\Request;
 use support\Response;
 
 class Menu
 {
-    public function list(Request $request): Response
+    /**
+     * @Inject
+     * @var MenuService
+     */
+    private MenuService $service;
+
+    public function list(): Response
     {
-        $modelList  = Db::table('sys_menu')->orderBy('order_num')->orderBy('parent_id')->get();
-        $returnData = [];
-        foreach ($modelList as $model) {
-            $returnData[] = $this->processModel($model);
-        }
-        return successJson($returnData);
+        return successJson($this->service->getList());
     }
 
-    public function info(Request $request, $id): Response|array
+    public function info(Request $request, $id): Response
     {
-        $model = Db::table('sys_menu')->where('menu_id', $id)->first();
-        if (!$model) {
-            return failJson();
-        }
-        return successJson($this->processModel($model));
+        return successJson($this->service->getOne($id));
     }
 
     public function add(Request $request): Response
@@ -38,7 +36,7 @@ class Menu
         }
         $creatData['create_by']   = user()->getInfo()['user']['userName'];
         $creatData['create_time'] = Carbon::now();
-        if (Db::table('sys_menu')->insert($creatData)) {
+        if ($this->service->add($creatData)) {
             return successJson();
         } else {
             return failJson();
@@ -51,14 +49,9 @@ class Menu
         foreach ($request->post() as $key => $item) {
             $updateData[Str::snake($key)] = $item;
         }
-        $query = Db::table('sys_menu')->where('menu_id', $updateData['menu_id']);
-        $model = $query->first();
-        if (!$model) {
-            return failJson();
-        }
         $updateData['update_by']   = user()->getInfo()['user']['userName'];
         $updateData['update_time'] = Carbon::now();
-        if ($query->update($updateData)) {
+        if ($this->service->edit($updateData)) {
             return successJson();
         } else {
             return failJson();
@@ -67,20 +60,9 @@ class Menu
 
     public function del(Request $request, $id): Response
     {
-        $res = Db::table('sys_menu')->where('menu_id', $id)->delete();
-        if ($res) {
+        if ($this->service->del($id)) {
             return successJson();
         }
         return failJson();
     }
-
-    public function processModel($model): array
-    {
-        $returnData = [];
-        foreach (get_object_vars($model) as $k => $v) {
-            $returnData[Str::camel($k)] = $v;
-        }
-        return $returnData;
-    }
-
 }
