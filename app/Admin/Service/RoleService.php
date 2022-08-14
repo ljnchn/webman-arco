@@ -1,121 +1,135 @@
 <?php
 
+
 namespace App\Admin\Service;
 
-use support\Cache;
-use support\Db;
+use App\Admin\Models\Menu;
+use app\Admin\Models\Role;
+use app\Admin\Models\RoleMenu;
+use App\Enums\MenuType;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class RoleService
 {
 
-    /**
-     * 根据角色ID获取角色信息
-     *
-     * @param int $roleId
-     * @return array
-     */
-    public function getRoleInfo(int $roleId): array
+    public string $primaryKey = 'role_id';
+
+    function query(): Builder
     {
-        $roleList = $this->getRoleList();
-        $roleInfo = [];
-        foreach ($roleList as $role) {
-            if ($role['role_id'] == $roleId) {
-                $roleInfo = $role;
-            }
-        }
-        return $roleInfo;
+        return Role::query();
     }
 
-    /**
-     * 获取角色列表
-     *
-     * @return array
-     */
-    public function getRoleList(): array
+    function getList($pageSize, $pageNum): array
     {
-        $cacheKey = $this->getCacheKey('list');
-        if (!$roleList = Cache::get($cacheKey)) {
-            $roleModels = Db::table('sys_role')->where('status', 0)->orderBy('role_sort')->get();
-            $roleList = [];
-            foreach ($roleModels as $roleModel) {
-                $roleList[] = [
-                    'role_id' => $roleModel->role_id,
-                    'role_key' => $roleModel->role_key,
-                    'role_name' => $roleModel->role_name,
-                ];
-            }
-            Cache::set($cacheKey, $roleList);
+        $pagination  = $this->query()->paginate($pageSize, ['*'], 'page', $pageNum);
+        $rows = [];
+        foreach ($pagination->items() as $model) {
+            $rows[] = getCamelAttributes($model->attributesToArray());
         }
-        return $roleList;
+        return [
+            'rows' => $rows,
+            'total' =>  $pagination->total(),
+        ];
     }
 
-    /**
-     * 获取用户显示的菜单
-     * @param $roleId
-     * @return array
-     */
-    public function getShowMenu($roleId): array
+    function getOne($id): array
     {
-        $menuList = $this->getRoleMenuList($roleId);
-        $roleMenu = [];
-        foreach ($menuList as $menu) {
-            $children = [];
-            foreach ($menu['items'] as $item) {
-                $children[] = [
-                    'path' => $item['path'],
-                    'name' => $item['name'],
-                    'meta' => [
-                        'locale' => 'menu.' . $menu['perms'] . '.' . $item['perms'],
-                        'requiresAuth' => true,
-                    ],
-                ];
-            }
-            $roleMenu[] = [
-                'path' => $menu['path'],
-                'name' => $menu['name'],
-                'meta' => [
-                    'locale' => 'menu.' . $menu['perms'],
-                    'requiresAuth' => true,
-                    'icon' => $menu['icon'],
-                    // 'order' => 1,
-                ],
-                'children' => $children,
+        $this->query()->find($id);
+        return getCamelAttributes($this->query()->find($id)->attributesToArray());
+    }
+
+    function add($createData): bool
+    {
+        $createData['create_time'] = Carbon::now();
+        $model = $this->query()->create($createData);
+        $menuIds = $createData['menu_ids'];
+        unset($createData['menu_ids']);
+        if (!$model) {
+            return false;
+        }
+        $roleMenuArray = [];
+        foreach ($menuIds as $menu_id) {
+            $roleMenuArray[] = [
+                'role_id' => $model->role_id,
+                'menu_id' => $menu_id
             ];
         }
-        return $roleMenu;
+        RoleMenu::insert($roleMenuArray);
+        return true;
     }
 
-    /**
-     * 获取角色菜单列表
-     *
-     * @param array $roleIds
-     * @return array
-     */
-    public function getRoleMenuList(array $roleIds): array
+    function edit($updateData): bool
     {
-        $menuIds = Db::table('sys_role_menu')->whereIn('role_id', $roleIds)->get()->pluck('menu_id')->toArray();
-        return $menuIds;
+        $id = $updateData[$this->primaryKey];
+        $menuIds = $updateData['menu_ids'];
+        unset($updateData['menu_ids']);
+        $model = $this->query()->find($id);
+        $model->fill($updateData);
+        if (!$model->save()) {
+            return false;
+        }
+        $roleMenuArray = [];
+        foreach ($menuIds as $menu_id) {
+            $roleMenuArray[] = [
+                'role_id' => $id,
+                'menu_id' => $menu_id
+            ];
+        }
+        RoleMenu::where('role_id', $id)->delete();
+        RoleMenu::insert($roleMenuArray);
+        return true;
     }
 
-    /**
-     * 清除角色列表的缓存
-     *
-     * @param $type
-     * @return bool
-     */
-    public function clearRoleListCache($type): bool
+    function del($id): ?bool
     {
-        return Cache::delete($this->getCacheKey($type));
+        return $this->query()->find($id)->delete();
     }
 
-    /**
-     * 获取菜单缓存的 key
-     *
-     * @param $type
-     * @return string
-     */
-    public function getCacheKey($type): string
+    function changeStatus($id, $status): int
     {
-        return sprintf("role:%s:%s", $type, request()->tid);
+        return $this->query()->where('role_id', $id)->update(['status' => $status]);
     }
+
+    function roleMenu($roleId): array
+    {
+        return RoleMenu::where('role_id', $roleId)->pluck('menu_id')->toArray();
+    }
+
+    function treeSelect(): array
+    {
+        $menuModels = Menu::query()->orderBy('order_num')->get();
+        $menuData = $this->getMenuChildren($menuModels, 0);
+        // 暂时递归三层
+        foreach ($menuData as $key => $item) {
+            $children = $this->getMenuChildren($menuModels, $item['id']);
+            if ($children) {
+                $menuData[$key]['children'] = $children;
+                foreach ($menuData[$key]['children'] as &$item2) {
+                    $children = $this->getMenuChildren($menuModels, $item2['id']);
+                    if ($children) {
+                        $item2['children'] = $children;
+                    }
+                }
+            }
+        }
+        return $menuData;
+    }
+
+    function getMenuChildren(&$menuModels, $parentId): array
+    {
+        $children = [];
+        foreach ($menuModels as $key => $model) {
+            if ($model->parent_id == $parentId) {
+                $index            = count($children);
+                $children[$index] = [
+                    'id'   => $model->menu_id,
+                    'label'   => $model->menu_name,
+                ];
+                unset($menuModels[$key]);
+            }
+        }
+        return $children;
+    }
+
 }
