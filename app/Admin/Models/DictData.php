@@ -25,9 +25,4 @@ class DictData extends CModel
 
     protected $guarded = ['dict_code'];
 
-    /**
-     * 使用软删除
-     */
-    use SoftDeletes;
-
 }

@@ -17,9 +17,8 @@ namespace support;
 /**
  * Class Request
  * @package support
- * @property int tid 租户ID
- * @property int uid 用户ID
- * @property string token Bearer
+ * @property string pageSize 分页数量
+ * @property string pageNum 当前页
  */
 class Request extends \Webman\Http\Request
 {

@@ -2,27 +2,24 @@
 
 namespace app\Admin\Models;
 
-use Illuminate\Database\Eloquent\SoftDeletes;
-
 /**
  *
  */
-class DictType extends CModel
+class Example extends CModel
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'sys_dict_type';
+    protected $table = 'sys_example';
 
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
-    protected $primaryKey = 'dict_id';
+    protected $primaryKey = 'example_id';
 
-    protected $guarded = ['dict_id'];
-
+    protected $guarded = ['example_id'];
 }

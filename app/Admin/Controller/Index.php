@@ -5,6 +5,7 @@ namespace App\Admin\Controller;
 
 use App\Admin\Service\UserService;
 use App\Enums\HttpCode;
+use Exception;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -88,7 +89,7 @@ class Index
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function getInfo(): Response
     {
