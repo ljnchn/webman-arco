@@ -6,7 +6,7 @@ namespace App\Admin\Controller;
 use support\Request;
 use support\Response;
 
-class Test
+class TestController
 {
 
     public function index(Request $request, $param): Response

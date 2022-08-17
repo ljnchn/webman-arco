@@ -7,7 +7,7 @@ use support\Db;
 use support\Request;
 use support\Response;
 
-class Monitor
+class MonitorController
 {
     public function loginInfo(Request $request): Response
     {
@@ -31,9 +31,9 @@ class Monitor
         ], 'page', $request->pageNum);
 
         return json([
-            'code' => HttpCode::SUCCESS(),
-            'msg' => 'success',
-            'rows' => $pagination->items(),
+            'code'  => HttpCode::SUCCESS(),
+            'msg'   => 'success',
+            'rows'  => $pagination->items(),
             'total' => $pagination->total()
         ]);
     }

@@ -11,7 +11,7 @@ use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
 
-class Role
+class RoleController
 {
     /**
      * @Inject
@@ -22,11 +22,11 @@ class Role
     public function list(Request $request): Response
     {
         $pageSize = $request->pageSize;
-        $pageNum = $request->pageNum;
+        $pageNum  = $request->pageNum;
         return json([
-            'code' => HttpCode::SUCCESS(),
-            'msg' => 'success',
-            'rows' => $this->service->getList($pageSize, $pageNum)['rows'],
+            'code'  => HttpCode::SUCCESS(),
+            'msg'   => 'success',
+            'rows'  => $this->service->getList($pageSize, $pageNum)['rows'],
             'total' => $this->service->getList($pageSize, $pageNum)['total']
         ]);
     }
@@ -93,10 +93,10 @@ class Role
     public function roleMenuTreeselect(Request $request, $id): Response
     {
         return json([
-            'code' => HttpCode::SUCCESS(),
-            'msg' => 'success',
+            'code'        => HttpCode::SUCCESS(),
+            'msg'         => 'success',
             'checkedKeys' => $this->service->roleMenu($id),
-            'menus' => $this->service->treeSelect()
+            'menus'       => $this->service->treeSelect()
         ]);
     }
 

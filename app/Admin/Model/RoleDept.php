@@ -15,7 +15,7 @@ class RoleDept extends Model
      *
      * @var string
      */
-    protected $table = 'role_dept';
+    protected $table = 'sys_role_dept';
 
     /**
      * The primary key associated with the table.
@@ -30,6 +30,6 @@ class RoleDept extends Model
      * @var bool
      */
     public $timestamps = false;
-    
-    
+
+    protected $fillable = ['*'];
 }

@@ -15,7 +15,7 @@ class UserRole extends Model
      *
      * @var string
      */
-    protected $table = 'user_role';
+    protected $table = 'sys_user_role';
 
     /**
      * The primary key associated with the table.
@@ -30,6 +30,6 @@ class UserRole extends Model
      * @var bool
      */
     public $timestamps = false;
-    
-    
+
+    protected $fillable = ['*'];
 }

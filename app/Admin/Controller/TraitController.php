@@ -3,29 +3,32 @@
 
 namespace App\Admin\Controller;
 
-use App\Admin\Service\ExampleService;
+use App\Enums\HttpCode;
 use Carbon\Carbon;
-use DI\Annotation\Inject;
 use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
 
-class Example
+trait TraitController
 {
-    /**
-     * @Inject
-     * @var ExampleService
-     */
-    private ExampleService $service;
 
-    public function list(): Response
+    private $service;
+
+    public function list(Request $request): Response
     {
-        return successJson($this->service->getList());
+        $pageSize = $request->pageSize;
+        $pageNum  = $request->pageNum;
+        return json([
+            'code'  => HttpCode::SUCCESS(),
+            'msg'   => 'success',
+            'rows'  => $this->service->list($pageSize, $pageNum)['rows'],
+            'total' => $this->service->list($pageSize, $pageNum)['total']
+        ]);
     }
 
-    public function info(Request $request, $id): Response
+    public function one(Request $request, $id): Response
     {
-        return successJson($this->service->getOne($id));
+        return successJson($this->service->one($id));
     }
 
     public function add(Request $request): Response

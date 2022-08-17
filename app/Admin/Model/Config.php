@@ -5,16 +5,16 @@ namespace App\Admin\Model;
 use support\Model;
 
 /**
- * @property integer $config_id 参数主键(主键)
- * @property string $config_name 参数名称
- * @property string $config_key 参数键名
- * @property string $config_value 参数键值
- * @property mixed $config_type 系统内置（Y是 N否）
- * @property string $create_by 创建者
- * @property string $create_time 创建时间
- * @property string $update_by 更新者
- * @property string $update_time 更新时间
- * @property string $remark 备注
+ * @property integer $config_id    参数主键(主键)
+ * @property string  $config_name  参数名称
+ * @property string  $config_key   参数键名
+ * @property string  $config_value 参数键值
+ * @property mixed   $config_type  系统内置（Y是 N否）
+ * @property string  $create_by    创建者
+ * @property string  $create_time  创建时间
+ * @property string  $update_by    更新者
+ * @property string  $update_time  更新时间
+ * @property string  $remark       备注
  */
 class Config extends Model
 {
@@ -23,7 +23,7 @@ class Config extends Model
      *
      * @var string
      */
-    protected $table = 'config';
+    protected $table = 'sys_config';
 
     /**
      * The primary key associated with the table.
@@ -38,6 +38,6 @@ class Config extends Model
      * @var bool
      */
     public $timestamps = false;
-    
-    
+
+    protected $fillable = ['*'];
 }

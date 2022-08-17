@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
 
-class Menu
+class MenuController
 {
     /**
      * @Inject

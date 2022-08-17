@@ -14,7 +14,7 @@ use Ljnchn\Captcha\CaptchaBuilder;
 use Ljnchn\Captcha\PhraseBuilder;
 use DI\Annotation\Inject;
 
-class Index
+class IndexController
 {
 
     /**
@@ -28,7 +28,7 @@ class Index
     {
         // 初始化验证码类
         $phraseBuilder = new PhraseBuilder(4, '0123456789');
-        $builder = new CaptchaBuilder(null, $phraseBuilder);
+        $builder       = new CaptchaBuilder(null, $phraseBuilder);
         // 生成验证码
         $builder->build(100);
         // 将验证码的值存储到 redis 中
@@ -38,9 +38,9 @@ class Index
         $imgContent = base64_encode($builder->get());
         return json([
             'code' => HttpCode::SUCCESS(),
-            'img' => $imgContent,
+            'img'  => $imgContent,
             'uuid' => $uuid,
-            'msg' => 'success'
+            'msg'  => 'success'
         ]);
     }
 
@@ -49,8 +49,8 @@ class Index
     {
         $username = $request->post('username');
         $password = $request->post('password');
-        $code = $request->post('code');
-        $uuid = $request->post('uuid');
+        $code     = $request->post('code');
+        $uuid     = $request->post('uuid');
 
         // 验证码
         if (!$code || !$uuid) {
@@ -70,9 +70,9 @@ class Index
             return $this->failLogin($username, '登陆失败');
         }
         return json([
-            'code' => HttpCode::SUCCESS(),
+            'code'  => HttpCode::SUCCESS(),
             'token' => user()->getToken(),
-            'msg' => '登陆成功'
+            'msg'   => '登陆成功'
         ]);
     }
 
@@ -93,9 +93,9 @@ class Index
      */
     public function getInfo(): Response
     {
-        $userInfo = $this->userService->getUserInfo(user()->getUid());
+        $userInfo         = $this->userService->getUserInfo(user()->getUid());
         $userInfo['code'] = HttpCode::SUCCESS();
-        $userInfo['msg'] = 'success';
+        $userInfo['msg']  = 'success';
         return json($userInfo);
     }
 

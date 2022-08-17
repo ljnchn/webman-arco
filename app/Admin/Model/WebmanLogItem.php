@@ -6,11 +6,11 @@ use support\Model;
 
 /**
  * @property integer $id (主键)
- * @property integer $pid 
- * @property string $type 
- * @property string $connection 
- * @property string $command 
- * @property float $exec_time
+ * @property integer $pid
+ * @property string  $type
+ * @property string  $connection
+ * @property string  $command
+ * @property float   $exec_time
  */
 class WebmanLogItem extends Model
 {
@@ -34,6 +34,6 @@ class WebmanLogItem extends Model
      * @var bool
      */
     public $timestamps = false;
-    
-    
+
+
 }

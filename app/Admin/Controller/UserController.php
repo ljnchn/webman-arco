@@ -8,7 +8,7 @@ use support\Db;
 use support\Request;
 use support\Response;
 
-class User
+class UserController
 {
 
     public function list(Request $request)

@@ -11,7 +11,7 @@ use support\Db;
 use support\Request;
 use support\Response;
 
-class Dept
+class DeptController
 {
     /**
      * @Inject

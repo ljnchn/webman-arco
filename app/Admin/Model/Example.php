@@ -12,7 +12,7 @@ class Example extends CModel
      *
      * @var string
      */
-    protected $table = 'sys_example';
+    protected $table = 'sys_sys_example';
 
     /**
      * The primary key associated with the table.
@@ -21,5 +21,5 @@ class Example extends CModel
      */
     protected $primaryKey = 'example_id';
 
-    protected $guarded = ['example_id'];
+    protected $fillable = ['*'];
 }

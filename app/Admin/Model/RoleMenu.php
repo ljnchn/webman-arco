@@ -15,7 +15,7 @@ class RoleMenu extends Model
      *
      * @var string
      */
-    protected $table = 'role_menu';
+    protected $table = 'sys_role_menu';
 
     /**
      * The primary key associated with the table.
@@ -30,6 +30,6 @@ class RoleMenu extends Model
      * @var bool
      */
     public $timestamps = false;
-    
-    
+
+    protected $fillable = ['*'];
 }

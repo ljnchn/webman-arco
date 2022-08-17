@@ -3,7 +3,7 @@
 
 namespace App\Admin\Controller;
 
-use App\Admin\Service\DictTypeService;
+use App\Admin\Service\DictDataService;
 use App\Enums\HttpCode;
 use Carbon\Carbon;
 use DI\Annotation\Inject;
@@ -11,29 +11,30 @@ use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
 
-class DictType
+class DictDataController
 {
     /**
      * @Inject
-     * @var DictTypeService
+     * @var DictDataService
      */
-    private DictTypeService $service;
+    private DictDataService $service;
 
-    public function optionList(Request $request): Response
+    public function getDictDataByType(Request $request, $type): Response
     {
-        $data = $this->service->getList(100, 1);
-        return successJson($data['rows']);
+        return successJson($this->service->getDictDataByType($type));
     }
 
     public function list(Request $request): Response
     {
         $pageSize = $request->pageSize;
-        $pageNum = $request->pageNum;
+        $pageNum  = $request->pageNum;
+        $dictType = $request->get('dictType');
+        $data     = $this->service->getList($dictType, $pageSize, $pageNum);
         return json([
-            'code' => HttpCode::SUCCESS(),
-            'msg' => 'success',
-            'rows' => $this->service->getList($pageSize, $pageNum)['rows'],
-            'total' => $this->service->getList($pageSize, $pageNum)['total']
+            'code'  => HttpCode::SUCCESS(),
+            'msg'   => 'success',
+            'rows'  => $data['rows'],
+            'total' => $data['total']
         ]);
     }
 
