@@ -2,8 +2,7 @@
 
 namespace App\Admin\Service;
 
-use App\Admin\Models\DictData;
-use app\Admin\Models\DictType;
+use App\Admin\Model\DictData;
 use App\Enums\Constant;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;

@@ -1,25 +1,25 @@
 <?php
 
-namespace app\Admin\Models;
+namespace app\Admin\Model;
 
 /**
  *
  */
-class Menu extends CModel
+class Example extends CModel
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'sys_menu';
+    protected $table = 'sys_example';
 
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
-    protected $primaryKey = 'menu_id';
+    protected $primaryKey = 'example_id';
 
-    protected $guarded = ['menu_id'];
+    protected $guarded = ['example_id'];
 }

@@ -2,7 +2,7 @@
 
 namespace App\Admin\Service;
 
-use app\Admin\Models\DictType;
+use App\Admin\Model\DictType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 

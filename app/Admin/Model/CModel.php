@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Admin\Models;
+namespace app\Admin\Model;
 
 use support\Model;
 

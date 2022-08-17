@@ -2,7 +2,7 @@
 
 namespace App\Admin\Service;
 
-use app\Admin\Models\Menu;
+use App\Admin\Model\Menu;
 use Carbon\Carbon;
 
 class MenuService {

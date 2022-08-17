@@ -2,7 +2,7 @@
 
 namespace App\Admin\Service;
 
-use app\Admin\Models\Dept;
+use App\Admin\Model\Dept;
 use Carbon\Carbon;
 
 class DeptService

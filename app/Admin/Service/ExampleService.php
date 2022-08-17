@@ -3,7 +3,7 @@
 
 namespace App\Admin\Service;
 
-use app\Admin\Models\Example;
+use app\Admin\Model\Example;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
