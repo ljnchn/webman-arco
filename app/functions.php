@@ -89,3 +89,40 @@ function getCamelAttributes($attributes): array
     }
     return $camelAttributes;
 }
+
+/**
+ * @param array $data
+ * @param string $primary
+ * @param string $parent
+ * @param string $children
+ * @return array
+ */
+function toTree(array $data = [], string $primary = 'id', string $parent = 'parent_id', string $children = 'children'): array
+{
+    // data is empty
+    if (count($data) === 0) {
+        return [];
+    }
+
+    // parameter missing
+    if (!array_key_exists($primary, head($data)) || !array_key_exists($parent, head($data))){
+        return [];
+    }
+
+    $items = [];
+    foreach ($data as $v) {
+        $items[@$v[$primary]] = $v;
+    }
+
+
+    $tree = [];
+    foreach ($items as $item) {
+        if (isset($items[$item[$parent]])) {
+            $items[$item[$parent]][$children][] = &$items[$item[$primary]];
+        } else {
+            $tree[] = &$items[$item[$primary]];
+        }
+    }
+
+    return $tree;
+}

@@ -98,37 +98,15 @@ class RoleService
     function treeSelect(): array
     {
         $menuModels = Menu::query()->orderBy('order_num')->get();
-        $menuData = $this->getMenuChildren($menuModels, 0);
-        // 暂时递归三层
-        foreach ($menuData as $key => $item) {
-            $children = $this->getMenuChildren($menuModels, $item['id']);
-            if ($children) {
-                $menuData[$key]['children'] = $children;
-                foreach ($menuData[$key]['children'] as &$item2) {
-                    $children = $this->getMenuChildren($menuModels, $item2['id']);
-                    if ($children) {
-                        $item2['children'] = $children;
-                    }
-                }
-            }
+        $menuData = [];
+        foreach ($menuModels as $menuModel) {
+            $menuData[] = [
+                'id' => $menuModel->menu_id,
+                'parent_id' => $menuModel->parent_id,
+                'label' => $menuModel->menu_name,
+            ];
         }
-        return $menuData;
-    }
-
-    function getMenuChildren(&$menuModels, $parentId): array
-    {
-        $children = [];
-        foreach ($menuModels as $key => $model) {
-            if ($model->parent_id == $parentId) {
-                $index            = count($children);
-                $children[$index] = [
-                    'id'   => $model->menu_id,
-                    'label'   => $model->menu_name,
-                ];
-                unset($menuModels[$key]);
-            }
-        }
-        return $children;
+        return toTree($menuData);
     }
 
 }
