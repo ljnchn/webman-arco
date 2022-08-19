@@ -4,6 +4,7 @@
  * Here is your custom functions.
  */
 
+use App\Admin\User;
 use App\Enums\HttpCode;
 use Illuminate\Support\Str;
 use support\Response;
@@ -60,6 +61,17 @@ function noAccessJson(string $msg = 'no access', array $data = [], int $code = n
 {
     $code = $code ?? HttpCode::NO_ACCESS();
     return apiJson(['code' => $code, 'msg' => $msg, 'data' => $data]);
+}
+
+/**
+ * @return User
+ */
+function user(): User
+{
+    if (!request()->user_instance) {
+        request()->user_instance = new User();
+    }
+    return request()->user_instance;
 }
 
 /**

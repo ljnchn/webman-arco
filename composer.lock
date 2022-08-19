@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ee8e300f14c58effd5e8bd7a0465f773",
+    "content-hash": "2db95115bdfbf9d5d7f499bc1b5eb06f",
     "packages": [
         {
             "name": "archtechx/enums",
@@ -4223,16 +4223,16 @@
         },
         {
             "name": "workerman/webman-framework",
-            "version": "v1.3.21",
+            "version": "v1.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/walkor/webman-framework.git",
-                "reference": "b619339030e853130076bac9ff2298b525fe0322"
+                "reference": "0f4d5b6c58823656bdc9603f762d4be6e41ae380"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/walkor/webman-framework/zipball/b619339030e853130076bac9ff2298b525fe0322",
-                "reference": "b619339030e853130076bac9ff2298b525fe0322",
+                "url": "https://api.github.com/repos/walkor/webman-framework/zipball/0f4d5b6c58823656bdc9603f762d4be6e41ae380",
+                "reference": "0f4d5b6c58823656bdc9603f762d4be6e41ae380",
                 "shasum": ""
             },
             "require": {
@@ -4290,7 +4290,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2022-07-27T23:59:29+00:00"
+            "time": "2022-08-15T12:35:14+00:00"
         },
         {
             "name": "workerman/workerman",

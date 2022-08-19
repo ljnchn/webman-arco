@@ -18,20 +18,20 @@ trait TraitService
     #[ArrayShape(['rows' => "array", 'total' => "int"])]
     function list($pageSize, $pageNum, $where = [], $beginTime = '', $endTime = ''): array
     {
-        $model = $this->model;
+        $query = $this->model->newQuery();
         if ($where) {
-            $model->where($where);
+            $query->where($where);
         }
         if ($beginTime) {
-            $model->where('update_time', '>=', $beginTime);
+            $query->where('update_time', '>=', $beginTime);
         }
         if ($endTime) {
-            $model->where('update_time', '<=', $endTime);
+            $query->where('update_time', '<=', $endTime);
         }
-        $pagination = $model->paginate($pageSize, ['*'], 'page', $pageNum);
+        $pagination = $query->paginate($pageSize, ['*'], 'page', $pageNum);
         $rows       = [];
-        foreach ($pagination->items() as $model) {
-            $rows[] = getCamelAttributes($model->attributesToArray());
+        foreach ($pagination->items() as $item) {
+            $rows[] = getCamelAttributes($item->attributesToArray());
         }
         return [
             'rows'  => $rows,
@@ -41,8 +41,7 @@ trait TraitService
 
     function one($id): array
     {
-        $this->model->find($id);
-        return getCamelAttributes($this->model->find($id)->attributesToArray());
+        return getCamelAttributes($this->model->newQuery()->find($id)->attributesToArray());
     }
 
     function add($createData): bool
@@ -53,13 +52,11 @@ trait TraitService
 
     function edit($updateData): bool
     {
-        $model = $this->model->find($updateData[$this->model->getKeyName()]);
-        if (!$model) {
-            return false;
-        }
-        unset($updateData[$this->model->getKeyName()]);
-        $model->fill($updateData);
-        return $model->save();
+        $query = $this->model->newQuery();
+        $key   = $this->model->getKeyName();
+        $id    = $updateData[$this->model->getKeyName()];
+        $query->where($key, $id)->update($updateData);
+        return true;
     }
 
     function del($id): ?bool
