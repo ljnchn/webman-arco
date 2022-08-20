@@ -3,39 +3,17 @@
 
 namespace App\Admin\Service;
 
-use App\Admin\Model\Menu;
 use App\Admin\Model\Role;
 use App\Admin\Model\RoleMenu;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 
 class RoleService
 {
+    use TraitService;
 
-    public string $primaryKey = 'role_id';
-
-    function query(): Builder
+    public function __construct()
     {
-        return Role::query();
-    }
-
-    function getList($pageSize, $pageNum): array
-    {
-        $pagination  = $this->query()->paginate($pageSize, ['*'], 'page', $pageNum);
-        $rows = [];
-        foreach ($pagination->items() as $model) {
-            $rows[] = getCamelAttributes($model->attributesToArray());
-        }
-        return [
-            'rows' => $rows,
-            'total' =>  $pagination->total(),
-        ];
-    }
-
-    function getOne($id): array
-    {
-        $this->query()->find($id);
-        return getCamelAttributes($this->query()->find($id)->attributesToArray());
+        $this->model = new Role();
     }
 
     function add($createData): bool
@@ -47,20 +25,13 @@ class RoleService
         if (!$model) {
             return false;
         }
-        $roleMenuArray = [];
-        foreach ($menuIds as $menu_id) {
-            $roleMenuArray[] = [
-                'role_id' => $model->role_id,
-                'menu_id' => $menu_id
-            ];
-        }
-        RoleMenu::insert($roleMenuArray);
+        $this->addRoleMenu($model->role_id, $menuIds);
         return true;
     }
 
     function edit($updateData): bool
     {
-        $id = $updateData[$this->primaryKey];
+        $id = $updateData[$this->model->getKeyName()];
         $menuIds = $updateData['menu_ids'];
         unset($updateData['menu_ids']);
         $model = $this->query()->find($id);
@@ -68,26 +39,33 @@ class RoleService
         if (!$model->save()) {
             return false;
         }
-        $roleMenuArray = [];
-        foreach ($menuIds as $menu_id) {
-            $roleMenuArray[] = [
-                'role_id' => $id,
-                'menu_id' => $menu_id
-            ];
-        }
-        RoleMenu::where('role_id', $id)->delete();
-        RoleMenu::insert($roleMenuArray);
+        $this->delRoleMenu($id);
+        $this->addRoleMenu($id, $menuIds);
         return true;
     }
 
-    function del($id): ?bool
+    function changeStatus($roleId, $status): bool
     {
-        return $this->query()->find($id)->delete();
+        $key   = $this->model->getKeyName();
+        $this->query()->where($key, $roleId)->update(['status' => $status]);
+        return true;
     }
 
-    function changeStatus($id, $status): int
+    function addRoleMenu($roleId, $menuIds): void
     {
-        return $this->query()->where('role_id', $id)->update(['status' => $status]);
+        $roleMenuArray = [];
+        foreach ($menuIds as $menu_id) {
+            $roleMenuArray[] = [
+                'role_id' => $roleId,
+                'menu_id' => $menu_id
+            ];
+        }
+        RoleMenu::insert($roleMenuArray);
+    }
+
+    function delRoleMenu($roleId): void
+    {
+        RoleMenu::where('role_id', $roleId)->delete();
     }
 
     function roleMenu($roleId): array
@@ -97,7 +75,7 @@ class RoleService
 
     function treeSelect(): array
     {
-        $menuModels = Menu::query()->orderBy('order_num')->get();
+        $menuModels = $this->query()->orderBy('order_num')->get();
         $menuData = [];
         foreach ($menuModels as $menuModel) {
             $menuData[] = [

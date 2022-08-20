@@ -480,4 +480,3 @@ function cpu_count()
     }
     return $count > 0 ? $count : 4;
 }
-

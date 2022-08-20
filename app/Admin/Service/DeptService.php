@@ -8,45 +8,31 @@ use Carbon\Carbon;
 class DeptService
 {
 
-    function getList(): array
-    {
-        $modelList  = Dept::query()
-            ->orderBy('order_num')
-            ->orderBy('parent_id')
-            ->get();
-        $returnData = [];
-        foreach ($modelList as $model) {
-            $returnData[] = getCamelAttributes($model->attributesToArray());
-        }
-        return $returnData;
-    }
+    use TraitService;
 
-    function getOne($id): array
+    public function __construct()
     {
-        Dept::find($id);
-        return getCamelAttributes(Dept::find($id)->attributesToArray());
+        $this->model = new Dept();
     }
 
     function add($createData): bool
     {
-        $parentModel               = Dept::find($createData['parent_id']);
+        $parentModel               = $this->model::find($createData['parent_id']);
         $createData['ancestors']   = $parentModel->ancestors . ',' . $createData['parent_id'];
         $createData['create_time'] = Carbon::now();
-        return Dept::insert($createData);
+        return $this->model->insert($createData);
     }
 
     function edit($updateData): bool
     {
-        $model       = Dept::find($updateData['dept_id']);
-        $parentModel = Dept::find($updateData['parent_id']);
-        $model->fill($updateData);
-        $model->ancestors = $parentModel->ancestors . ',' . $updateData['parent_id'];
-        return $model->save();
-    }
-
-    function del($id): ?bool
-    {
-        return Dept::find($id)->delete();
+        $id          = $updateData[$this->model->getKeyName()];
+        $key         = $this->model->getKeyName();
+        $parentModel = $this->model->find($updateData['parent_id']);
+        if ($parentModel) {
+            $updateData['ancestors'] = $parentModel->ancestors . ',' . $updateData['parent_id'];
+        }
+        $this->model->newQuery()->where($key, $id)->update($updateData);
+        return true;
     }
 
     /**
@@ -56,8 +42,8 @@ class DeptService
      */
     function exclude($id): array
     {
-        $model       = Dept::find($id);
-        $parentModel = Dept::findMany(explode(',', $model->ancestors));
+        $model       = $this->model->find($id);
+        $parentModel = $this->model->findMany(explode(',', $model->ancestors));
         $returnData  = [];
         foreach ($parentModel as $item) {
             $returnData[] = getCamelAttributes($item->attributesToArray());

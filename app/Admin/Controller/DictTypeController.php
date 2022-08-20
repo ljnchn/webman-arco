@@ -9,6 +9,9 @@ use support\Response;
 
 class DictTypeController
 {
+    private DictTypeService $service;
+    use TraitController;
+
     public function __construct()
     {
         $this->service = new DictTypeService();
@@ -20,5 +23,4 @@ class DictTypeController
         return successJson($data['rows']);
     }
 
-    use TraitController;
 }

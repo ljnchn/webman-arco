@@ -4,6 +4,7 @@
 namespace App\Admin\Service;
 
 use Carbon\Carbon;
+use Illuminate\Contracts\Database\Query\Builder;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Model;
 
@@ -15,12 +16,27 @@ trait TraitService
      */
     public Model $model;
 
-    #[ArrayShape(['rows' => "array", 'total' => "int"])]
-    function list($pageSize, $pageNum, $where = [], $beginTime = '', $endTime = ''): array
+    /**
+     * @param $pageSize
+     * @param $pageNum
+     * @param array $where 筛选条件
+     * @param array $ascOrder 正序字段
+     * @param array $descOrder 倒序字段
+     * @param $beginTime
+     * @param $endTime
+     * @return array
+     */
+    #[ArrayShape(['rows' => "array", 'total' => "int"])] function list($pageSize, $pageNum, array $where = [], array $ascOrder = [], array $descOrder = [], $beginTime = null, $endTime = null): array
     {
         $query = $this->model->newQuery();
         if ($where) {
             $query->where($where);
+        }
+        foreach ($descOrder as $column) {
+            $query->orderByDesc($column);
+        }
+        foreach ($ascOrder as $column) {
+            $query->orderBy($column);
         }
         if ($beginTime) {
             $query->where('update_time', '>=', $beginTime);
@@ -62,6 +78,11 @@ trait TraitService
     function del($id): ?bool
     {
         return $this->model->find($id)->delete();
+    }
+
+    function query(): \Illuminate\Database\Eloquent\Builder
+    {
+        return $this->model->newQuery();
     }
 
 }

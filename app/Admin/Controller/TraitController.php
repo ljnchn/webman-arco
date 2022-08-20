@@ -12,17 +12,32 @@ use support\Response;
 trait TraitController
 {
 
-    private $service;
+    /**
+     * 不带分页的列表，200上限
+     * @param Request $request
+     * @return Response
+     */
+    public function allList(Request $request): Response
+    {
+        $list = $this->service->list(200, 1);
+        return successJson($list['rows']);
+    }
 
+    /**
+     * 带分页的列表
+     * @param Request $request
+     * @return Response
+     */
     public function list(Request $request): Response
     {
         $pageSize = $request->pageSize;
         $pageNum  = $request->pageNum;
+        $list = $this->service->list($pageSize, $pageNum);
         return json([
             'code'  => HttpCode::SUCCESS(),
             'msg'   => 'success',
-            'rows'  => $this->service->list($pageSize, $pageNum)['rows'],
-            'total' => $this->service->list($pageSize, $pageNum)['total']
+            'rows'  => $list['rows'],
+            'total' => $list['total']
         ]);
     }
 

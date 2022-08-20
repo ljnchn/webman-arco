@@ -26,17 +26,17 @@ Route::group('/api/', function () {
     Route::get('monitor/logininfor/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:query');
 
     // 部门管理
-    Route::get('system/dept/list', [DeptController::class, 'list'])->name('');
+    Route::get('system/dept/list', [DeptController::class, 'allList'])->name('');
     Route::get('system/dept/list/exclude/{id}', [DeptController::class, 'exclude'])->name('');
-    Route::get('system/dept/{id}', [DeptController::class, 'info'])->name('');
+    Route::get('system/dept/{id}', [DeptController::class, 'one'])->name('');
     Route::post('system/dept', [DeptController::class, 'add'])->name('');
     Route::put('system/dept', [DeptController::class, 'edit'])->name('');
     Route::delete('system/dept/{id}', [DeptController::class, 'del'])->name('');
     // 菜单管理
     Route::get('system/menu/treeselect', [RoleController::class, 'treeSelect'])->name('');
     Route::get('system/menu/roleMenuTreeselect/{id}', [RoleController::class, 'roleMenuTreeselect'])->name('');
-    Route::get('system/menu/list', [MenuController::class, 'list'])->name('');
-    Route::get('system/menu/{id}', [MenuController::class, 'info'])->name('');
+    Route::get('system/menu/list', [MenuController::class, 'allList'])->name('');
+    Route::get('system/menu/{id}', [MenuController::class, 'one'])->name('');
     Route::post('system/menu', [MenuController::class, 'add'])->name('');
     Route::put('system/menu', [MenuController::class, 'edit'])->name('');
     Route::delete('system/menu/{id}', [MenuController::class, 'del'])->name('');
@@ -50,13 +50,13 @@ Route::group('/api/', function () {
     // 字典数据管理
     Route::get('system/dict/data/type/{type}', [DictDataController::class, 'getDictDataByType']);
     Route::get('system/dict/data/list', [DictDataController::class, 'list'])->name('');
-    Route::get('system/dict/data/{id}', [DictDataController::class, 'info'])->name('');
+    Route::get('system/dict/data/{id}', [DictDataController::class, 'one'])->name('');
     Route::post('system/dict/data', [DictDataController::class, 'add'])->name('');
     Route::put('system/dict/data', [DictDataController::class, 'edit'])->name('');
     Route::delete('system/dict/data/{id}', [DictDataController::class, 'del'])->name('');
     // 角色管理
     Route::get('system/role/list', [RoleController::class, 'list'])->name('');
-    Route::get('system/role/{id}', [RoleController::class, 'info'])->name('');
+    Route::get('system/role/{id}', [RoleController::class, 'one'])->name('');
     Route::post('system/role', [RoleController::class, 'add'])->name('');
     Route::put('system/role', [RoleController::class, 'edit'])->name('');
     Route::delete('system/role/{id}', [RoleController::class, 'del'])->name('');

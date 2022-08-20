@@ -4,72 +4,38 @@
 namespace App\Admin\Controller;
 
 use App\Admin\Service\DeptService;
-use Carbon\Carbon;
-use DI\Annotation\Inject;
-use Illuminate\Support\Str;
-use support\Db;
+use App\Enums\HttpCode;
 use support\Request;
 use support\Response;
 
 class DeptController
 {
-    /**
-     * @Inject
-     * @var deptService
-     */
-    private DeptService $deptService;
+    private DeptService $service;
 
-    public function list(): Response
+    use TraitController;
+
+    public function __construct()
     {
-        return successJson($this->deptService->getList());
+        $this->service = new DeptService();
     }
 
-    public function info(Request $request, $id): Response
+    public function list(Request $request): Response
     {
-        return successJson($this->deptService->getOne($id));
-    }
-
-    public function add(Request $request): Response
-    {
-        $creatData = [];
-        foreach ($request->post() as $key => $item) {
-            $creatData[Str::snake($key)] = $item;
-        }
-        $creatData['create_by']   = user()->getInfo()['user']['userName'];
-        $creatData['create_time'] = Carbon::now();
-        if ($this->deptService->add($creatData)) {
-            return successJson();
-        } else {
-            return failJson();
-        }
-    }
-
-    public function edit(Request $request): Response
-    {
-        $updateData = [];
-        foreach ($request->post() as $key => $item) {
-            $updateData[Str::snake($key)] = $item;
-        }
-        $updateData['update_by']   = user()->getInfo()['user']['userName'];
-        $updateData['update_time'] = Carbon::now();
-        if ($this->deptService->edit($updateData)) {
-            return successJson();
-        } else {
-            return failJson();
-        }
-    }
-
-    public function del(Request $request, $id): Response
-    {
-        if ($this->deptService->del($id)) {
-            return successJson();
-        }
-        return failJson();
+        $pageSize = $request->pageSize;
+        $pageNum  = $request->pageNum;
+        $ascOrder = ['order_num', 'parent_id'];
+        $list = $this->service->list($pageSize, $pageNum, [], $ascOrder);
+        return json([
+            'code'  => HttpCode::SUCCESS(),
+            'msg'   => 'success',
+            'rows'  => $list['rows'],
+            'total' => $list['total']
+        ]);
     }
 
     public function exclude(Request $request, $id): Response
     {
-        return successJson($this->deptService->exclude($id));
+        return successJson($this->service->exclude($id));
     }
 
 }
