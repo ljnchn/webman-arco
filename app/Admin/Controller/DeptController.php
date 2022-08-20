@@ -24,7 +24,7 @@ class DeptController
         $pageSize = $request->pageSize;
         $pageNum  = $request->pageNum;
         $ascOrder = ['order_num', 'parent_id'];
-        $list = $this->service->list($pageSize, $pageNum, [], $ascOrder);
+        $list     = $this->service->list($pageSize, $pageNum, [], $ascOrder);
         return json([
             'code'  => HttpCode::SUCCESS(),
             'msg'   => 'success',

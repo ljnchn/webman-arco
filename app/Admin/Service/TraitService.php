@@ -4,7 +4,7 @@
 namespace App\Admin\Service;
 
 use Carbon\Carbon;
-use Illuminate\Contracts\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Model;
 
@@ -17,16 +17,17 @@ trait TraitService
     public Model $model;
 
     /**
-     * @param $pageSize
-     * @param $pageNum
-     * @param array $where 筛选条件
-     * @param array $ascOrder 正序字段
+     * @param       $pageSize
+     * @param       $pageNum
+     * @param array $where     筛选条件
+     * @param array $ascOrder  正序字段
      * @param array $descOrder 倒序字段
-     * @param $beginTime
-     * @param $endTime
+     * @param       $beginTime
+     * @param       $endTime
      * @return array
      */
-    #[ArrayShape(['rows' => "array", 'total' => "int"])] function list($pageSize, $pageNum, array $where = [], array $ascOrder = [], array $descOrder = [], $beginTime = null, $endTime = null): array
+    #[ArrayShape(['rows' => "array", 'total' => "int"])]
+    function list($pageSize, $pageNum, array $where = [], array $ascOrder = [], array $descOrder = [], $beginTime = null, $endTime = null): array
     {
         $query = $this->model->newQuery();
         if ($where) {
@@ -80,7 +81,7 @@ trait TraitService
         return $this->model->find($id)->delete();
     }
 
-    function query(): \Illuminate\Database\Eloquent\Builder
+    function query(): Builder
     {
         return $this->model->newQuery();
     }

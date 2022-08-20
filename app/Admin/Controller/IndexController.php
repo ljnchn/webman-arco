@@ -5,14 +5,14 @@ namespace App\Admin\Controller;
 
 use App\Admin\Service\UserService;
 use App\Enums\HttpCode;
+use DI\Annotation\Inject;
 use Exception;
-use support\Redis;
-use support\Request;
-use support\Response;
 use Illuminate\Support\Str;
 use Ljnchn\Captcha\CaptchaBuilder;
 use Ljnchn\Captcha\PhraseBuilder;
-use DI\Annotation\Inject;
+use support\Redis;
+use support\Request;
+use support\Response;
 
 class IndexController
 {

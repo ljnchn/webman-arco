@@ -12,7 +12,7 @@ use support\Model;
  * @property string  $path        路由地址
  * @property string  $component   组件路径
  * @property string  $query       路由参数
- * @property integer $is_frame    是否为外链（0是 1否）
+ * @property mixed   $is_frame    是否为外链（0是 1否）
  * @property integer $is_cache    是否缓存（0缓存 1不缓存）
  * @property mixed   $menu_type   菜单类型（M目录 C菜单 F按钮）
  * @property mixed   $visible     菜单状态（0显示 1隐藏）

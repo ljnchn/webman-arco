@@ -19,8 +19,8 @@ class RoleService
     function add($createData): bool
     {
         $createData['create_time'] = Carbon::now();
-        $model = $this->query()->create($createData);
-        $menuIds = $createData['menu_ids'];
+        $model                     = $this->query()->create($createData);
+        $menuIds                   = $createData['menu_ids'];
         unset($createData['menu_ids']);
         if (!$model) {
             return false;
@@ -31,7 +31,7 @@ class RoleService
 
     function edit($updateData): bool
     {
-        $id = $updateData[$this->model->getKeyName()];
+        $id      = $updateData[$this->model->getKeyName()];
         $menuIds = $updateData['menu_ids'];
         unset($updateData['menu_ids']);
         $model = $this->query()->find($id);
@@ -46,7 +46,7 @@ class RoleService
 
     function changeStatus($roleId, $status): bool
     {
-        $key   = $this->model->getKeyName();
+        $key = $this->model->getKeyName();
         $this->query()->where($key, $roleId)->update(['status' => $status]);
         return true;
     }
@@ -76,12 +76,12 @@ class RoleService
     function treeSelect(): array
     {
         $menuModels = $this->query()->orderBy('order_num')->get();
-        $menuData = [];
+        $menuData   = [];
         foreach ($menuModels as $menuModel) {
             $menuData[] = [
-                'id' => $menuModel->menu_id,
+                'id'        => $menuModel->menu_id,
                 'parent_id' => $menuModel->parent_id,
-                'label' => $menuModel->menu_name,
+                'label'     => $menuModel->menu_name,
             ];
         }
         return toTree($menuData);

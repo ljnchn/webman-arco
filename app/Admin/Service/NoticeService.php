@@ -2,16 +2,15 @@
 
 namespace App\Admin\Service;
 
-use App\Admin\Model\Menu;
+use App\Admin\Model\Notice;
 
-class MenuService
+class NoticeService
 {
 
     use TraitService;
 
     public function __construct()
     {
-        $this->model = new Menu();
+        $this->model = new Notice();
     }
-
 }

@@ -15,5 +15,4 @@ class MenuController
     private MenuService $service;
 
     use TraitController;
-
 }

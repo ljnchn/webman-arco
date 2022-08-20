@@ -32,7 +32,7 @@ trait TraitController
     {
         $pageSize = $request->pageSize;
         $pageNum  = $request->pageNum;
-        $list = $this->service->list($pageSize, $pageNum);
+        $list     = $this->service->list($pageSize, $pageNum);
         return json([
             'code'  => HttpCode::SUCCESS(),
             'msg'   => 'success',
