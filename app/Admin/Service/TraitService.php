@@ -61,14 +61,24 @@ trait TraitService
         return getCamelAttributes($this->model->newQuery()->find($id)->attributesToArray());
     }
 
-    function add($createData): bool
+    function add($createData): int
     {
+        foreach ($createData as $key => $v) {
+            if (is_array($v)) {
+                unset($createData[$key]);
+            }
+        }
         $createData['create_time'] = Carbon::now();
-        return $this->model->insert($createData);
+        return $this->model->insertGetId($createData);
     }
 
     function edit($updateData): bool
     {
+        foreach ($updateData as $key => $v) {
+            if (is_array($v)) {
+                unset($updateData[$key]);
+            }
+        }
         $query = $this->model->newQuery();
         $key   = $this->model->getKeyName();
         $id    = $updateData[$this->model->getKeyName()];

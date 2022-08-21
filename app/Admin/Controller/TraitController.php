@@ -12,6 +12,12 @@ use support\Response;
 trait TraitController
 {
 
+    public array $where = [];
+    public array $ascOrder = [];
+    public array $descOrder = [];
+    public string|null $beginTime = null;
+    public string|null $endTime = null;
+
     /**
      * 不带分页的列表，200上限
      * @param Request $request
@@ -19,7 +25,7 @@ trait TraitController
      */
     public function allList(Request $request): Response
     {
-        $list = $this->service->list(200, 1);
+        $list = $this->service->list(200, 1, $this->where, $this->ascOrder, $this->descOrder, $this->beginTime, $this->endTime);
         return successJson($list['rows']);
     }
 
@@ -32,7 +38,7 @@ trait TraitController
     {
         $pageSize = $request->pageSize;
         $pageNum  = $request->pageNum;
-        $list     = $this->service->list($pageSize, $pageNum);
+        $list     = $this->service->list($pageSize, $pageNum, $this->where, $this->ascOrder, $this->descOrder, $this->beginTime, $this->endTime);
         return json([
             'code'  => HttpCode::SUCCESS(),
             'msg'   => 'success',

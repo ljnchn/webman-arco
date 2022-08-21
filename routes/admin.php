@@ -10,6 +10,7 @@ use app\Admin\Controller\DictDataController;
 use App\Admin\Controller\NoticeController;
 use App\Admin\Controller\PostController;
 use App\Admin\Controller\RoleController;
+use App\Admin\Controller\UserController;
 use Webman\Route;
 
 //Route::get('/api/test/{param}', [\App\Admin\Controller\Test::class, 'index'])->name('test route name');
@@ -28,7 +29,15 @@ Route::group('/api/', function () {
     Route::post('logout', [IndexController::class, 'logout']);
     Route::get('monitor/logininfor/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:query');
 
+    // 用户管理
+    Route::get('system/user/list', [UserController::class, 'list'])->name('system:user:list');
+    Route::get('system/user/', [UserController::class, 'info'])->name('system:user:query');
+    Route::get('system/user/{id}', [UserController::class, 'one'])->name('system:user:query');
+    Route::post('system/user', [UserController::class, 'add'])->name('system:user:add');
+    Route::put('system/user', [UserController::class, 'edit'])->name('system:user:edit');
+    Route::delete('system/user/{id}', [UserController::class, 'del'])->name('system:user:remove');
     // 部门管理
+    Route::get('system/dept/treeselect', [DeptController::class, 'treeselect'])->name('system:dept:query');
     Route::get('system/dept/list', [DeptController::class, 'allList'])->name('system:dept:list');
     Route::get('system/dept/list/exclude/{id}', [DeptController::class, 'exclude'])->name('system:dept:query');
     Route::get('system/dept/{id}', [DeptController::class, 'one'])->name('system:dept:query');

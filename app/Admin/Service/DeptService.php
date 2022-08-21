@@ -35,6 +35,20 @@ class DeptService
         return true;
     }
 
+    function treeSelect(): array
+    {
+        $deptModels = $this->query()->orderBy('order_num')->get();
+        $deptData   = [];
+        foreach ($deptModels as $deptModel) {
+            $deptData[] = [
+                'id'        => $deptModel->dept_id,
+                'parent_id' => $deptModel->parent_id,
+                'label'     => $deptModel->dept_name,
+            ];
+        }
+        return toTree($deptData);
+    }
+
     /**
      * 根据 ID 获取该职位上面所有职位列表
      * @param $id

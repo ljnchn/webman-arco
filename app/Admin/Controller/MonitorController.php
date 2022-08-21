@@ -2,8 +2,8 @@
 
 namespace App\Admin\Controller;
 
+use App\Admin\Model\UserLogin;
 use App\Enums\HttpCode;
-use support\Db;
 use support\Request;
 use support\Response;
 
@@ -11,13 +11,14 @@ class MonitorController
 {
     public function loginInfo(Request $request): Response
     {
-        $query = Db::table('sys_user_login');
+        $query = UserLogin::query();
         if ($request->get('status') != null) {
             $query->where('status', $request->get('status'));
         }
         if ($request->get('userName')) {
             $query->where('user_name', $request->get('user_name'));
         }
+        $query->orderByDesc('login_time');
         $pagination = $query->paginate($request->pageSize, [
             'info_id as infoId',
             'user_name as userName',

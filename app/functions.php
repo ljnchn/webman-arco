@@ -103,6 +103,7 @@ function getCamelAttributes($attributes): array
 }
 
 /**
+ * 转化数据为树形结构
  * @param array $data
  * @param string $primary
  * @param string $parent
@@ -137,4 +138,36 @@ function toTree(array $data = [], string $primary = 'id', string $parent = 'pare
     }
 
     return $tree;
+}
+
+/**
+ * 获取 IP 所在地
+ * @param $ip
+ * @return string
+ */
+function ip2region($ip): string
+{
+    static $search = new \Ip2Region();
+    $region = '';
+    try {
+        $res = $search->memorySearch($ip)['region'];
+        $arr = explode('|', $res);
+        if ($arr) {
+            if (count($arr) == 5) {
+                unset($arr[4]);
+            }
+            if ($arr[0] == '中国') {
+                unset($arr[0]);
+            }
+            foreach ($arr as $k => $v) {
+                if ($v == 0) {
+                    unset($arr[$k]);
+                }
+            }
+            $region = implode(' ', $arr);
+        }
+    } catch (\Exception $e) {
+        echo $e->getMessage();
+    }
+    return $region;
 }

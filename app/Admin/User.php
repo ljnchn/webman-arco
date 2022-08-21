@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Exception;
 use support\Db;
 use support\Redis;
+use Jenssegers\Agent\Agent;
 
 class User
 {
@@ -108,15 +109,19 @@ class User
     {
         // 登陆记录
         $ip = Request()->getRealIp();
-        $os = Request()->header('sec-ch-ua-platform');
-        // todo 分析 user-agent
-        $browser = 'Edge';
-        Db::table('sys_user_login')->insert([
+        $location = '';
+        $agent = new Agent();
+        $agent->setUserAgent(Request()->header('user-agent'));
+        $agent->setHttpHeaders(Request()->header());
+        if ($ip) {
+            $location = ip2region($ip);
+        }
+        Db::table('sys_user_login')->insertGetId([
             'user_name'      => $userName,
             'ipaddr'         => $ip,
-            'login_location' => '',
-            'browser'        => $browser,
-            'os'             => $os,
+            'login_location' => $location,
+            'browser'        => $agent->browser(),
+            'os'             => $agent->platform(),
             'status'         => $status,
             'msg'            => $msg,
             'login_time'     => Carbon::now(),

@@ -3,6 +3,7 @@
 
 namespace App\Admin\Service;
 
+use App\Admin\Model\Menu;
 use App\Admin\Model\Role;
 use App\Admin\Model\RoleMenu;
 use Carbon\Carbon;
@@ -44,6 +45,12 @@ class RoleService
         return true;
     }
 
+    function del($id): ?bool
+    {
+        $this->delRoleMenu($id);
+        return $this->model->find($id)->delete();
+    }
+
     function changeStatus($roleId, $status): bool
     {
         $key = $this->model->getKeyName();
@@ -75,7 +82,7 @@ class RoleService
 
     function treeSelect(): array
     {
-        $menuModels = $this->query()->orderBy('order_num')->get();
+        $menuModels = Menu::orderBy('order_num')->get();
         $menuData   = [];
         foreach ($menuModels as $menuModel) {
             $menuData[] = [

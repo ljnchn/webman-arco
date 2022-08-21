@@ -2,6 +2,11 @@
 
 namespace App\Admin\Service;
 
+use App\Admin\Model\Dept;
+use App\Admin\Model\RoleMenu;
+use App\Admin\Model\User;
+use App\Admin\Model\UserPost;
+use App\Admin\Model\UserRole;
 use App\Enums\MenuType;
 use App\Enums\UserStatus;
 use Exception;
@@ -11,24 +16,30 @@ use support\Db;
 class UserService
 {
 
+    use TraitService;
+
+    function __construct()
+    {
+        $this->model = new User();
+    }
+
     /**
      * @param $uid
      * @return array
      * @throws Exception
      */
-    public function getUserInfo($uid): array
+    function getUserInfo($uid): array
     {
         $cacheKey = 'userInfo' . $uid;
         if ($cache = Cache::get($cacheKey)) {
             return $cache;
         }
-        $userModels = Db::table('sys_user')
+        $userModels = User::query()
             ->leftJoin('sys_dept', 'sys_user.dept_id', '=', 'sys_dept.dept_id')
             ->leftJoin('sys_user_role', 'sys_user.user_id', '=', 'sys_user_role.user_id')
             ->leftJoin('sys_role', 'sys_user_role.role_id', '=', 'sys_role.role_id')
             ->where('sys_user.user_id', $uid)
             ->where('sys_user.status', UserStatus::NORMAL())
-            ->where('sys_user.del_flag', UserStatus::NORMAL())
             ->get();
         if (!$userModels) {
             throw new Exception();
@@ -69,7 +80,7 @@ class UserService
         }
         $permissions = [];
         // 查找用户角色权限信息
-        $menuModels = Db::table('sys_role_menu')
+        $menuModels = RoleMenu::query()
             ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id')
             ->where('sys_menu.visible', MenuType::STATUS_NORMAL())
             ->whereIn('sys_role_menu.role_id', $roleIds)
@@ -91,9 +102,9 @@ class UserService
         return $data;
     }
 
-    public function getRouters($uid): array
+    function getRouters($uid): array
     {
-        $menuModels = Db::table('sys_user_role')
+        $menuModels = UserRole::query()
             ->leftJoin('sys_role_menu', 'sys_user_role.role_id', '=', 'sys_role_menu.role_id')
             ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id')
             ->where('sys_user_role.user_id', $uid)
@@ -102,27 +113,9 @@ class UserService
             ->orderBy('sys_menu.order_num')
             ->get();
 
-        $menuData = $this->getMenuChildren($menuModels, 0);
-        // 暂时递归三层
-        foreach ($menuData as $key => $item) {
-            $children = $this->getMenuChildren($menuModels, $item['menu_id']);
-            if ($children) {
-                $menuData[$key]['children'] = $children;
-                foreach ($menuData[$key]['children'] as &$item2) {
-                    $children = $this->getMenuChildren($menuModels, $item2['menu_id']);
-                    if ($children) {
-                        $item2['children'] = $children;
-                    }
-                }
-            }
-        }
-        return $menuData;
-    }
-
-    public function getMenuChildren(&$menuModels, $parentId): array
-    {
-        $children = [];
+        $menuData = [];
         foreach ($menuModels as $key => $model) {
+            $parentId  = $model->parent_id;
             $component = 'Layout';
             if ($model->component) {
                 $component = $model->component;
@@ -131,33 +124,103 @@ class UserService
             } elseif ($parentId != 0 && $model->menu_type == MenuType::FOLDER()) {
                 $component = 'ParentView';
             }
-            if ($model->parent_id == $parentId) {
-                $index            = count($children);
-                $children[$index] = [
-                    'menu_id'   => $model->menu_id,
-                    'hidden'    => false,
-                    'component' => $component,
-                    'name'      => ucfirst($model->path),
-                    'path'      => ($parentId == 0 ? '/' : '') . $model->path,
-                    'redirect'  => $model->is_frame == 0 ? $model->path : 'noRedirect',
-                    'meta'      => [
-                        'title'   => $model->menu_name,
-                        'icon'    => $model->icon,
-                        'noCache' => $model->is_cache == 1,
-                        'link'    => $model->is_frame ? null : $model->path,
-                    ],
-                ];
-                if ($parentId == 0) {
-                    $children[$index]['alwaysShow'] = true;
-                }
-                if ($model->is_frame == 0) {
-                    unset($children[$index]['alwaysShow']);
-                    $children[$index]['path'] = $model->path;
-                }
-                unset($menuModels[$key]);
+            $menuData[$key] = [
+                'menu_id'   => $model->menu_id,
+                'parent_id' => $model->parent_id,
+                'hidden'    => false,
+                'component' => $component,
+                'name'      => ucfirst($model->path),
+                'path'      => ($parentId == 0 ? '/' : '') . $model->path,
+                'redirect'  => $model->is_frame == 0 ? $model->path : 'noRedirect',
+                'meta'      => [
+                    'title'   => $model->menu_name,
+                    'icon'    => $model->icon,
+                    'noCache' => $model->is_cache == 1,
+                    'link'    => $model->is_frame ? null : $model->path,
+                ],
+            ];
+            if ($parentId == 0) {
+                $menuData[$key]['alwaysShow'] = true;
+            }
+            if ($model->is_frame == 0) {
+                unset($menuData[$key]['alwaysShow']);
+                $menuData[$key]['path'] = $model->path;
             }
         }
-        return $children;
+        return toTree($menuData, 'menu_id');
+    }
+
+    function userAdd($createData): bool
+    {
+        $postIds = $createData['post_ids'];
+        $roleIds = $createData['role_ids'];
+        unset($createData['post_ids']);
+        unset($createData['role_ids']);
+        $userId = $this->add($createData);
+        $this->delUserPost($userId);
+        if ($postIds) {
+            $this->addUserPost($userId, $postIds);
+        }
+        $this->delUserRole($userId);
+        if ($roleIds) {
+            $this->addUserRole($userId, $postIds);
+        }
+        return true;
+    }
+
+    function userEdit($updateData): bool
+    {
+        $userId = $updateData['user_id'];
+        $this->edit($updateData);
+        $this->delUserPost($userId);
+        if ($updateData['post_ids']) {
+            $this->addUserPost($userId, $updateData['post_ids']);
+        }
+        $this->delUserRole($userId);
+        if ($updateData['role_ids']) {
+            $this->addUserRole($userId, $updateData['role_ids']);
+        }
+        return true;
+    }
+
+    function userDel($userId): bool
+    {
+        $this->del($userId);
+        $this->delUserPost($userId);
+        $this->delUserRole($userId);
+        return true;
+    }
+
+    function addUserPost($userId, $postIds): bool
+    {
+        $insertData = [];
+        foreach ($postIds as $postId) {
+            $insertData[] = [
+                'user_id' => $userId,
+                'post_id' => $postId
+            ];
+        }
+        return UserPost::insert($insertData);
+    }
+
+    function delUserPost($userId) {
+        return UserPost::where('user_id', $userId)->delete();
+    }
+
+    function addUserRole($userId, $roleIds): bool
+    {
+        $insertData = [];
+        foreach ($roleIds as $roleId) {
+            $insertData[] = [
+                'user_id' => $userId,
+                'role_id' => $roleId
+            ];
+        }
+        return UserRole::insert($insertData);
+    }
+
+    function delUserRole($userId) {
+        return UserRole::where('user_id', $userId)->delete();
     }
 
 }

@@ -33,6 +33,11 @@ class DeptController
         ]);
     }
 
+    public function treeSelect(Request $request): Response
+    {
+        return successJson($this->service->treeSelect());
+    }
+
     public function exclude(Request $request, $id): Response
     {
         return successJson($this->service->exclude($id));
