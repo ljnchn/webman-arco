@@ -35,6 +35,7 @@ Route::group('/api/', function () {
     Route::get('system/user/{id}', [UserController::class, 'one'])->name('system:user:query');
     Route::post('system/user', [UserController::class, 'add'])->name('system:user:add');
     Route::put('system/user', [UserController::class, 'edit'])->name('system:user:edit');
+    Route::put('system/user/resetPwd', [UserController::class, 'resetPwd'])->name('system:user:edit');
     Route::delete('system/user/{id}', [UserController::class, 'del'])->name('system:user:remove');
     // 部门管理
     Route::get('system/dept/treeselect', [DeptController::class, 'treeselect'])->name('system:dept:query');

@@ -5,6 +5,8 @@ namespace App\Admin\Controller;
 
 use App\Admin\Model\Post;
 use App\Admin\Model\Role;
+use App\Admin\Model\UserPost;
+use App\Admin\Model\UserRole;
 use App\Admin\Service\UserService;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -24,8 +26,8 @@ class UserController
 
     public function info(Request $request): Response
     {
-        $postList = Post::get()->toArray();;
-        $roleList = Role::get()->toArray();;
+        $postList = Post::get()->toArray();
+        $roleList = Role::get()->toArray();
         array_walk($postList, function (&$value, $key) {
             $value = getCamelAttributes($value);
         });
@@ -37,6 +39,31 @@ class UserController
             'msg' => 'success',
             'posts' => getCamelAttributes($postList),
             'roles' => getCamelAttributes($roleList)
+        ]);
+    }
+
+    public function one(Request $request, $id): Response
+    {
+        $postList = Post::get()->toArray();
+        $roleList = Role::get()->toArray();
+        array_walk($postList, function (&$value, $key) {
+            $value = getCamelAttributes($value);
+        });
+        array_walk($roleList, function (&$value, $key) {
+            $value = getCamelAttributes($value);
+        });
+        $data = $this->service->one($id);
+        $postIds = UserPost::where('user_id', $id)->pluck('post_id');
+        $roleIds = UserRole::where('user_id', $id)->pluck('role_id');
+
+        return json([
+            'code' => 200,
+            'msg' => 'success',
+            'data' => $data,
+            'posts' => getCamelAttributes($postList),
+            'roles' => getCamelAttributes($roleList),
+            'postIds' => $postIds,
+            'roleIds' => $roleIds,
         ]);
     }
 
@@ -63,7 +90,7 @@ class UserController
         }
         $updateData['update_by']   = user()->getInfo()['user']['userName'];
         $updateData['update_time'] = Carbon::now();
-        if ($this->service->userAdd($updateData)) {
+        if ($this->service->userEdit($updateData)) {
             return successJson();
         } else {
             return failJson();
@@ -73,6 +100,16 @@ class UserController
     public function del(Request $request, $id): Response
     {
         if ($this->service->userDel($id)) {
+            return successJson();
+        }
+        return failJson();
+    }
+
+    public function resetPwd(Request $request): Response
+    {
+        $userId = $request->input('userId');
+        $password = $request->input('password');
+        if ($this->service->resetPwd($userId, $password)) {
             return successJson();
         }
         return failJson();

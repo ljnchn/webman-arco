@@ -156,6 +156,7 @@ class UserService
         $roleIds = $createData['role_ids'];
         unset($createData['post_ids']);
         unset($createData['role_ids']);
+        $createData['password'] = password_hash($createData['password'], PASSWORD_DEFAULT);
         $userId = $this->add($createData);
         $this->delUserPost($userId);
         if ($postIds) {
@@ -188,6 +189,14 @@ class UserService
         $this->del($userId);
         $this->delUserPost($userId);
         $this->delUserRole($userId);
+        return true;
+    }
+
+    function resetPwd($userId, $password): bool
+    {
+        $this->query()->where('user_id', $userId)->update([
+           'password' => password_hash($password, PASSWORD_DEFAULT)
+        ]);
         return true;
     }
 
