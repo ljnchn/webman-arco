@@ -6,6 +6,7 @@
 
 use App\Admin\User;
 use App\Enums\HttpCode;
+use support\Container;
 use Illuminate\Support\Str;
 use support\Response;
 
@@ -147,7 +148,7 @@ function toTree(array $data = [], string $primary = 'id', string $parent = 'pare
  */
 function ip2region($ip): string
 {
-    static $search = new \Ip2Region();
+    $search = Container::get(Ip2Region::class);
     $region = '';
     try {
         $res = $search->memorySearch($ip)['region'];
