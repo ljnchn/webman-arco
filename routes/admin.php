@@ -27,7 +27,7 @@ Route::group('/api/', function () {
     Route::get('getInfo', [IndexController::class, 'getInfo']);
     Route::get('getRouters', [IndexController::class, 'getRouters']);
     Route::post('logout', [IndexController::class, 'logout']);
-    Route::get('monitor/logininfor/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:query');
+    Route::get('monitor/logininfor/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:list');
 
     // 用户管理
     Route::get('system/user/list', [UserController::class, 'list'])->name('system:user:list');

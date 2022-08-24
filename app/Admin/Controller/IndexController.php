@@ -44,7 +44,6 @@ class IndexController
         ]);
     }
 
-
     public function login(Request $request): Response
     {
         $username = $request->post('username');
@@ -94,9 +93,13 @@ class IndexController
     public function getInfo(): Response
     {
         $userInfo         = $this->userService->getUserInfo(user()->getUid());
-        $userInfo['code'] = HttpCode::SUCCESS();
-        $userInfo['msg']  = 'success';
-        return json($userInfo);
+        return json([
+            'code' => HttpCode::SUCCESS(),
+            'msg' => 'success',
+            'permissions' => $userInfo['permissions'],
+            'roles' => $userInfo['roles'],
+            'user' => $userInfo['user'],
+        ]);
     }
 
     public function getRouters(): Response

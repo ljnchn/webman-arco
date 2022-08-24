@@ -2,6 +2,7 @@
 
 namespace App\Admin\Model;
 
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use support\Model;
 
 /**
@@ -32,4 +33,12 @@ class RoleMenu extends Model
     public $timestamps = false;
 
     protected $fillable = ['*'];
+
+    /**
+     * @return HasOne
+     */
+    public function menu(): HasOne
+    {
+        return $this->hasOne(Menu::class, 'menu_id');
+    }
 }

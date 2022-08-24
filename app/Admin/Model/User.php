@@ -2,6 +2,8 @@
 
 namespace App\Admin\Model;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use support\Model;
 
@@ -52,4 +54,20 @@ class User extends Model
     protected $fillable = ['*'];
 
     use SoftDeletes;
+
+    /**
+     * @return HasOne
+     */
+    public function dept(): HasOne
+    {
+        return $this->hasOne(Dept::class, 'dept_id', 'dept_id');
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function roles(): HasMany
+    {
+        return $this->hasMany(UserRole::class, 'user_id', 'user_id');
+    }
 }

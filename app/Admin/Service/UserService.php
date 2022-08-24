@@ -2,12 +2,13 @@
 
 namespace App\Admin\Service;
 
+use App\Admin\Model\Menu;
+use App\Admin\Model\Role;
 use App\Admin\Model\RoleMenu;
 use App\Admin\Model\User;
 use App\Admin\Model\UserPost;
 use App\Admin\Model\UserRole;
 use App\Enums\MenuType;
-use App\Enums\UserStatus;
 use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 
@@ -29,137 +30,126 @@ class UserService
     #[ArrayShape(['user' => "array", 'permissions' => "array", 'roles' => "array"])]
     function getUserInfo($uid): array
     {
-        $userModels = User::query()
-            ->leftJoin('sys_dept', 'sys_user.dept_id', '=', 'sys_dept.dept_id')
-            ->leftJoin('sys_user_role', 'sys_user.user_id', '=', 'sys_user_role.user_id')
-            ->leftJoin('sys_role', 'sys_user_role.role_id', '=', 'sys_role.role_id')
-            ->where('sys_user.user_id', $uid)
-            ->where('sys_user.status', UserStatus::NORMAL())
-            ->get();
-        if (!$userModels) {
-            throw new Exception();
+        $userModel = $this->query()->with(['dept', 'roles'])->find($uid);
+        if (!$userModel) {
+            throw new Exception('数据错误');
         }
-        $userData = [
-            'admin'       => false,
-            'avatar'      => $userModels[0]->avatar,
-            'email'       => $userModels[0]->email,
-            'nickName'    => $userModels[0]->nick_name,
-            'userName'    => $userModels[0]->user_name,
-            'phonenumber' => $userModels[0]->phonenumber,
-            'userId'      => $userModels[0]->user_id,
-            'remark'      => $userModels[0]->remark,
-            'sex'         => $userModels[0]->sex,
-            'status'      => $userModels[0]->status,
-            'loginIp'     => $userModels[0]->login_ip,
-            'login_date'  => $userModels[0]->login_date,
+
+        $userData    = [
+            'avatar'      => $userModel->avatar,
+            'email'       => $userModel->email,
+            'nickName'    => $userModel->nick_name,
+            'userName'    => $userModel->user_name,
+            'phonenumber' => $userModel->phonenumber,
+            'userId'      => $userModel->user_id,
+            'remark'      => $userModel->remark,
+            'sex'         => $userModel->sex,
+            'status'      => $userModel->status,
+            'loginIp'     => $userModel->login_ip,
+            'login_date'  => $userModel->login_date,
             'dept'        => [
-                'ancestors' => $userModels[0]->ancestors,
-                'deptName'  => $userModels[0]->dept_name,
-                'leader'    => $userModels[0]->leader,
-                'phone'     => $userModels[0]->phone,
-                'email'     => $userModels[0]->email,
+                'ancestors' => $userModel->dept->ancestors,
+                'deptName'  => $userModel->dept->dept_name,
+                'leader'    => $userModel->dept->leader,
+                'phone'     => $userModel->dept->phone,
+                'email'     => $userModel->dept->email,
             ],
             'roles'       => [],
         ];
-        $roleIds  = [];
-        $roleKeys = [];
-        $isAdmin  = false;
-        foreach ($userModels as $userModel) {
-            if ($userModel->role_key == 'admin') {
+        $roleIds     = [];
+        $roleKeys    = [];
+        $permissions = [];
+        $isAdmin     = false;
+        foreach ($userModel->roles as $role) {
+            $roleIds[] = $role->role_id;
+        }
+        $roleModels = Role::findMany($roleIds);
+        foreach ($roleModels as $roleModel) {
+            $roleKeys[] = $roleModel->role_key;
+            if ($roleModel->role_key == 'admin') {
                 $isAdmin = true;
             }
-            $roleIds[]           = $userModel->role_id;
-            $roleKeys[]          = $userModel->role_key;
-            $userData['roles'][] = [
-                'admin'     => $userModel->role_key == 'admin',
-                'roleName'  => $userModel->role_name,
-                'roleKey'   => $userModel->role_key,
-                'dataScope' => $userModel->data_scope,
-            ];
         }
-        $permissions = [];
-        if ($isAdmin) {
-            $permissions[] = '*';
-        }
+        $userData['admin'] = $isAdmin;
         // 查找用户角色权限信息
-        $menuModels = RoleMenu::query()
-            ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id')
-            ->where('sys_menu.visible', MenuType::STATUS_NORMAL())
-            ->whereIn('sys_role_menu.role_id', $roleIds)
-            ->orderBy('sys_menu.order_num')
-            ->get();
-
+        $menuModels = RoleMenu::query()->whereIn('role_id', $roleIds)->with('menu')->get();
         foreach ($menuModels as $menuModel) {
-            if ($menuModel->perms) {
-                $permissions[] = $menuModel->perms;
+            if ($menuModel->menu->perms) {
+                $permissions[] = $menuModel->menu->perms;
             }
         }
         return [
             'user'        => $userData,
-            'permissions' => $permissions,
             'roles'       => $roleKeys,
+            'permissions' => $permissions,
         ];
     }
 
     function getRouters($uid): array
     {
-        $userInfo = user()->getInfo();
-        $query    = UserRole::query()
-            ->leftJoin('sys_role_menu', 'sys_user_role.role_id', '=', 'sys_role_menu.role_id')
-            ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id');
-
-        if (!in_array('*', $userInfo['permissions'])) {
-            $query->where('sys_user_role.user_id', $uid);
-        }
-        $menuModels = $query->where('sys_menu.visible', MenuType::STATUS_NORMAL())
-            ->whereIn('sys_menu.menu_type', [MenuType::FOLDER(), MenuType::MENU()])
-            ->orderBy('sys_menu.order_num')
-            ->get();
-
+        $roleIds = UserRole::where('user_id', $uid)->get()->pluck('role_id');
+        // 查找用户角色权限信息
+        $menuModels = RoleMenu::query()->whereIn('role_id', $roleIds)->with('menu')->get();
         $menuData = [];
-        foreach ($menuModels as $key => $model) {
-            $parentId  = $model->parent_id;
+        foreach ($menuModels as $key => $menuModel) {
+            $menu = $menuModel->menu;
+            if ($menu->menu_type == MenuType::BUTTON()) {
+                continue;
+            }
+            $parentId  = $menu->parent_id;
             $component = 'Layout';
-            if ($model->component) {
-                $component = $model->component;
-            } elseif ($parentId != 0 && $model->is_frame == 0) {
+            if ($menu->component) {
+                $component = $menu->component;
+            } elseif ($parentId != 0 && $menu->is_frame == 0) {
                 $component = 'InnerLink';
-            } elseif ($parentId != 0 && $model->menu_type == MenuType::FOLDER()) {
+            } elseif ($parentId != 0 && $menu->menu_type == MenuType::FOLDER()) {
                 $component = 'ParentView';
             }
             $menuData[$key] = [
-                'menu_id'   => $model->menu_id,
-                'parent_id' => $model->parent_id,
+                'menu_id'   => $menu->menu_id,
+                'parent_id' => $menu->parent_id,
                 'hidden'    => false,
                 'component' => $component,
-                'name'      => ucfirst($model->path),
-                'path'      => ($parentId == 0 ? '/' : '') . $model->path,
-                'redirect'  => $model->is_frame == 0 ? $model->path : 'noRedirect',
+                'name'      => ucfirst($menu->path),
+                'path'      => ($parentId == 0 ? '/' : '') . $menu->path,
+                'redirect'  => $menu->is_frame == 0 ? $menu->path : 'noRedirect',
                 'meta'      => [
-                    'title'   => $model->menu_name,
-                    'icon'    => $model->icon,
-                    'noCache' => $model->is_cache == 1,
-                    'link'    => $model->is_frame ? null : $model->path,
+                    'title'   => $menu->menu_name,
+                    'icon'    => $menu->icon,
+                    'noCache' => $menu->is_cache == 1,
+                    'link'    => $menu->is_frame ? null : $menu->path,
                 ],
             ];
             if ($parentId == 0) {
                 $menuData[$key]['alwaysShow'] = true;
             }
-            if ($model->is_frame == 0) {
+            if ($menu->is_frame == 0) {
                 unset($menuData[$key]['alwaysShow']);
-                $menuData[$key]['path'] = $model->path;
+                $menuData[$key]['path'] = $menu->path;
             }
         }
         return toTree($menuData, 'menu_id');
     }
 
+    /**
+     * @throws Exception
+     */
     function userAdd($createData): bool
     {
         $postIds = $createData['post_ids'];
         $roleIds = $createData['role_ids'];
         unset($createData['post_ids']);
         unset($createData['role_ids']);
-        // todo 检查用户名，邮箱，手机号
+        if ($this->query()->where('user_name', $createData['user_name'])->exists()) {
+            throw new Exception('用户名已存在');
+        }
+        if ($this->query()->where('email', $createData['email'])->exists()) {
+            throw new Exception('邮件地址已存在');
+        }
+        if ($this->query()->where('phonenumber', $createData['phonenumber'])->exists()) {
+            throw new Exception('手机号已存在');
+        }
+
         $createData['password'] = password_hash($createData['password'], PASSWORD_DEFAULT);
         $userId                 = $this->add($createData);
         $this->delUserPost($userId);

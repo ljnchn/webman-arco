@@ -3,6 +3,7 @@
 namespace App\Admin;
 
 use App\Admin\Service\UserService;
+use App\Enums\UserStatus;
 use Carbon\Carbon;
 use Exception;
 use support\Db;
@@ -44,7 +45,10 @@ class User
      */
     public function loginUsername($username, $password): bool
     {
-        $user = Db::table('sys_user')->where('user_name', $username)->first();
+        $user = Model\User::query()->where([
+            'user_name' => $username,
+            'status' => UserStatus::NORMAL()
+        ])->first();
         if (!$user) {
             return false;
         }
