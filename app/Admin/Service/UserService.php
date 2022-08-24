@@ -2,7 +2,6 @@
 
 namespace App\Admin\Service;
 
-use App\Admin\Model\Dept;
 use App\Admin\Model\RoleMenu;
 use App\Admin\Model\User;
 use App\Admin\Model\UserPost;
@@ -10,8 +9,7 @@ use App\Admin\Model\UserRole;
 use App\Enums\MenuType;
 use App\Enums\UserStatus;
 use Exception;
-use support\Cache;
-use support\Db;
+use JetBrains\PhpStorm\ArrayShape;
 
 class UserService
 {
@@ -28,12 +26,9 @@ class UserService
      * @return array
      * @throws Exception
      */
+    #[ArrayShape(['user' => "array", 'permissions' => "array", 'roles' => "array"])]
     function getUserInfo($uid): array
     {
-        $cacheKey = 'userInfo' . $uid;
-        if ($cache = Cache::get($cacheKey)) {
-            return $cache;
-        }
         $userModels = User::query()
             ->leftJoin('sys_dept', 'sys_user.dept_id', '=', 'sys_dept.dept_id')
             ->leftJoin('sys_user_role', 'sys_user.user_id', '=', 'sys_user_role.user_id')
@@ -68,7 +63,11 @@ class UserService
         ];
         $roleIds  = [];
         $roleKeys = [];
+        $isAdmin  = false;
         foreach ($userModels as $userModel) {
+            if ($userModel->role_key == 'admin') {
+                $isAdmin = true;
+            }
             $roleIds[]           = $userModel->role_id;
             $roleKeys[]          = $userModel->role_key;
             $userData['roles'][] = [
@@ -79,6 +78,9 @@ class UserService
             ];
         }
         $permissions = [];
+        if ($isAdmin) {
+            $permissions[] = '*';
+        }
         // 查找用户角色权限信息
         $menuModels = RoleMenu::query()
             ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id')
@@ -92,23 +94,24 @@ class UserService
                 $permissions[] = $menuModel->perms;
             }
         }
-        $data = [
+        return [
             'user'        => $userData,
             'permissions' => $permissions,
             'roles'       => $roleKeys,
         ];
-        Cache::set($cacheKey, $data);
-
-        return $data;
     }
 
     function getRouters($uid): array
     {
-        $menuModels = UserRole::query()
+        $userInfo = user()->getInfo();
+        $query    = UserRole::query()
             ->leftJoin('sys_role_menu', 'sys_user_role.role_id', '=', 'sys_role_menu.role_id')
-            ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id')
-            ->where('sys_user_role.user_id', $uid)
-            ->where('sys_menu.visible', MenuType::STATUS_NORMAL())
+            ->leftJoin('sys_menu', 'sys_role_menu.menu_id', '=', 'sys_menu.menu_id');
+
+        if (!in_array('*', $userInfo['permissions'])) {
+            $query->where('sys_user_role.user_id', $uid);
+        }
+        $menuModels = $query->where('sys_menu.visible', MenuType::STATUS_NORMAL())
             ->whereIn('sys_menu.menu_type', [MenuType::FOLDER(), MenuType::MENU()])
             ->orderBy('sys_menu.order_num')
             ->get();
@@ -156,8 +159,9 @@ class UserService
         $roleIds = $createData['role_ids'];
         unset($createData['post_ids']);
         unset($createData['role_ids']);
+        // todo 检查用户名，邮箱，手机号
         $createData['password'] = password_hash($createData['password'], PASSWORD_DEFAULT);
-        $userId = $this->add($createData);
+        $userId                 = $this->add($createData);
         $this->delUserPost($userId);
         if ($postIds) {
             $this->addUserPost($userId, $postIds);
@@ -167,6 +171,40 @@ class UserService
             $this->addUserRole($userId, $postIds);
         }
         return true;
+    }
+
+    function delUserPost($userId)
+    {
+        return UserPost::where('user_id', $userId)->delete();
+    }
+
+    function addUserPost($userId, $postIds): bool
+    {
+        $insertData = [];
+        foreach ($postIds as $postId) {
+            $insertData[] = [
+                'user_id' => $userId,
+                'post_id' => $postId
+            ];
+        }
+        return UserPost::insert($insertData);
+    }
+
+    function delUserRole($userId)
+    {
+        return UserRole::where('user_id', $userId)->delete();
+    }
+
+    function addUserRole($userId, $roleIds): bool
+    {
+        $insertData = [];
+        foreach ($roleIds as $roleId) {
+            $insertData[] = [
+                'user_id' => $userId,
+                'role_id' => $roleId
+            ];
+        }
+        return UserRole::insert($insertData);
     }
 
     function userEdit($updateData): bool
@@ -195,41 +233,9 @@ class UserService
     function resetPwd($userId, $password): bool
     {
         $this->query()->where('user_id', $userId)->update([
-           'password' => password_hash($password, PASSWORD_DEFAULT)
+            'password' => password_hash($password, PASSWORD_DEFAULT)
         ]);
         return true;
-    }
-
-    function addUserPost($userId, $postIds): bool
-    {
-        $insertData = [];
-        foreach ($postIds as $postId) {
-            $insertData[] = [
-                'user_id' => $userId,
-                'post_id' => $postId
-            ];
-        }
-        return UserPost::insert($insertData);
-    }
-
-    function delUserPost($userId) {
-        return UserPost::where('user_id', $userId)->delete();
-    }
-
-    function addUserRole($userId, $roleIds): bool
-    {
-        $insertData = [];
-        foreach ($roleIds as $roleId) {
-            $insertData[] = [
-                'user_id' => $userId,
-                'role_id' => $roleId
-            ];
-        }
-        return UserRole::insert($insertData);
-    }
-
-    function delUserRole($userId) {
-        return UserRole::where('user_id', $userId)->delete();
     }
 
 }

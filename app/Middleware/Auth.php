@@ -35,8 +35,10 @@ class Auth implements MiddlewareInterface
         }
         $userInfo = user()->getInfo();
         $routeName = $request->route->getName();
-        if ($routeName && !in_array($routeName, $userInfo['permissions'])) {
-            return noAccessJson('无权限', $userInfo['permissions']);
+        if ($routeName) {
+            if (!in_array('*', $userInfo['permissions']) && !in_array($routeName, $userInfo['permissions'])) {
+                return noAccessJson('无权限', $userInfo['permissions']);
+            }
         }
         // 请求继续穿越
         return $handler($request);
