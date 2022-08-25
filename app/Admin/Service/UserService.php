@@ -9,8 +9,10 @@ use App\Admin\Model\User;
 use App\Admin\Model\UserPost;
 use App\Admin\Model\UserRole;
 use App\Enums\MenuType;
+use App\Enums\UserStatus;
 use Exception;
 use JetBrains\PhpStorm\ArrayShape;
+use support\Cache;
 
 class UserService
 {
@@ -72,10 +74,10 @@ class UserService
         }
         $userData['admin'] = $isAdmin;
         // 查找用户角色权限信息
-        $menuModels = RoleMenu::query()->whereIn('role_id', $roleIds)->with('menu')->get();
-        foreach ($menuModels as $menuModel) {
-            if ($menuModel->menu->perms) {
-                $permissions[] = $menuModel->menu->perms;
+        $menuData = $this->getMenuDataByRole($roleIds);
+        foreach ($menuData as $menu) {
+            if ($menu->perms) {
+                $permissions[] = $menu->perms;
             }
         }
         return [
@@ -89,10 +91,10 @@ class UserService
     {
         $roleIds = UserRole::where('user_id', $uid)->get()->pluck('role_id');
         // 查找用户角色权限信息
-        $menuModels = RoleMenu::query()->whereIn('role_id', $roleIds)->with('menu')->get();
-        $menuData = [];
+        $menuModels = $this->getMenuDataByRole($roleIds);
+        $menuData   = [];
         foreach ($menuModels as $key => $menuModel) {
-            $menu = $menuModel->menu;
+            $menu = $menuModel;
             if ($menu->menu_type == MenuType::BUTTON()) {
                 continue;
             }
@@ -226,6 +228,34 @@ class UserService
             'password' => password_hash($password, PASSWORD_DEFAULT)
         ]);
         return true;
+    }
+
+
+    /**
+     * 根据角色ID获取菜单
+     * @param array $roleIds
+     * @param bool  $all
+     * @return array
+     */
+    function getMenuDataByRole(array $roleIds, bool $all = false): array
+    {
+        $returnData = [];
+        $key        = 'menuData';
+        $menuData   = Cache::get($key);
+        if (is_null($menuData)) {
+            $menuData = Menu::where(['status' => UserStatus::NORMAL(), 'visible' => UserStatus::NORMAL(),])->orderBy('order_num')->get();
+            Cache::set($key, $menuData);
+        }
+        if ($all) {
+            return $menuData;
+        }
+        $menuIds = RoleMenu::query()->whereIn('role_id', $roleIds)->get()->pluck('menu_id')->toArray();
+        foreach ($menuData as $menu) {
+            if (in_array($menu->menu_id, $menuIds)) {
+                $returnData[] = $menu;
+            }
+        }
+        return $returnData;
     }
 
 }

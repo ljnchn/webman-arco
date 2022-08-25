@@ -2,13 +2,13 @@
 
 namespace App\Admin;
 
+use App\Admin\Model\UserLogin;
 use App\Admin\Service\UserService;
 use App\Enums\UserStatus;
 use Carbon\Carbon;
 use Exception;
-use support\Db;
-use support\Redis;
 use Jenssegers\Agent\Agent;
+use support\Redis;
 
 class User
 {
@@ -30,7 +30,7 @@ class User
             return false;
         }
         $userService = new UserService();
-        $info = $userService->getUserInfo($uid);
+        $info        = $userService->getUserInfo($uid);
         $this->setUid($uid);
         $this->setToken($token);
         $this->setInfo($info);
@@ -47,7 +47,7 @@ class User
     {
         $user = Model\User::query()->where([
             'user_name' => $username,
-            'status' => UserStatus::NORMAL()
+            'status'    => UserStatus::NORMAL()
         ])->first();
         if (!$user) {
             return false;
@@ -67,7 +67,7 @@ class User
      */
     public function loginEmail($email, $password): bool
     {
-        $user = Db::table('sys_user')->where('email', $email)->first();
+        $user = Model\User::query()->where('email', $email)->first();
         if (!$user) {
             return false;
         }
@@ -94,7 +94,7 @@ class User
         $this->setToken($token);
         // 登陆记录
         $ip = Request()->getRealIp();
-        Db::table('sys_user')->where('user_id', $uid)->update([
+        Model\User::query()->where('user_id', $uid)->update([
             'login_ip'   => $ip,
             'login_date' => Carbon::now(),
         ]);
@@ -112,15 +112,15 @@ class User
     public function loginLog(string $userName, string $status, string $msg = ''): void
     {
         // 登陆记录
-        $ip = Request()->getRealIp();
+        $ip       = Request()->getRealIp();
         $location = '';
-        $agent = new Agent();
+        $agent    = new Agent();
         $agent->setUserAgent(Request()->header('user-agent'));
         $agent->setHttpHeaders(Request()->header());
         if ($ip) {
             $location = ip2region($ip);
         }
-        Db::table('sys_user_login')->insertGetId([
+        UserLogin::insert([
             'user_name'      => $userName,
             'ipaddr'         => $ip,
             'login_location' => $location,

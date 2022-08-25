@@ -19,4 +19,9 @@ return [
         'alg' => 'sha256',
         'expired' => 86400, // token 有效期，单位秒
     ],
+    'throttle' => [
+        'enable' => true,
+        'second' => 60,
+        'limit' => 60,
+    ],
 ];

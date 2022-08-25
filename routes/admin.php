@@ -2,24 +2,23 @@
 
 use App\Admin\Controller\ConfigController;
 use App\Admin\Controller\DeptController;
-use App\Admin\Controller\MenuController;
-use App\Admin\Controller\IndexController;
-use App\Admin\Controller\MonitorController;
-use App\Admin\Controller\DictTypeController;
 use app\Admin\Controller\DictDataController;
+use App\Admin\Controller\DictTypeController;
+use App\Admin\Controller\IndexController;
+use App\Admin\Controller\MenuController;
+use App\Admin\Controller\MonitorController;
 use App\Admin\Controller\NoticeController;
 use App\Admin\Controller\PostController;
 use App\Admin\Controller\RoleController;
 use App\Admin\Controller\UserController;
 use Webman\Route;
 
-//Route::get('/api/test/{param}', [\App\Admin\Controller\Test::class, 'index'])->name('test route name');
-
 Route::group('/api/', function () {
     Route::get('captchaImage', [IndexController::class, 'captchaImage']);
     Route::post('login', [IndexController::class, 'login']);
 })->middleware([
     App\Middleware\AccessControl::class,
+    App\Middleware\Throttle::class,
     App\Middleware\TraceLog::class,
 ]);
 
@@ -97,6 +96,7 @@ Route::group('/api/', function () {
 })->middleware([
     App\Middleware\AccessControl::class,
     App\Middleware\TraceLog::class,
+    App\Middleware\Throttle::class,
     App\Middleware\Auth::class,
     App\Middleware\Pagination::class,
 ]);
