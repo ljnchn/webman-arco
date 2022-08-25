@@ -89,7 +89,7 @@ class UserService
 
     function getRouters($uid): array
     {
-        $roleIds = UserRole::where('user_id', $uid)->get()->pluck('role_id');
+        $roleIds = UserRole::where('user_id', $uid)->get()->pluck('role_id')->toArray();
         // 查找用户角色权限信息
         $menuModels = $this->getMenuDataByRole($roleIds);
         $menuData   = [];
