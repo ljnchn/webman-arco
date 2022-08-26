@@ -22,6 +22,6 @@ return [
     'throttle' => [
         'enable' => true,
         'second' => 60,
-        'limit' => 60,
+        'limit' => 120,
     ],
 ];

@@ -16,7 +16,7 @@
  * Static file settings
  */
 return [
-    'enable' => true,
+    'enable' => false,
     'middleware' => [     // Static file Middleware
         //app\middleware\StaticFile::class,
     ],
