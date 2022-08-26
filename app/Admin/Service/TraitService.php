@@ -80,9 +80,8 @@ trait TraitService
             }
         }
         $query = $this->model->newQuery();
-        $key   = $this->model->getKeyName();
         $id    = $updateData[$this->model->getKeyName()];
-        $query->where($key, $id)->update($updateData);
+        $query->whereKey($id)->update($updateData);
         return true;
     }
 

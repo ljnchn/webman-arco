@@ -53,8 +53,7 @@ class RoleService
 
     function changeStatus($roleId, $status): bool
     {
-        $key = $this->model->getKeyName();
-        $this->query()->where($key, $roleId)->update(['status' => $status]);
+        $this->query()->whereKey($roleId)->update(['status' => $status]);
         return true;
     }
 
