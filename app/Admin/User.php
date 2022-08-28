@@ -142,6 +142,11 @@ class User
         return Redis::del("bearer:" . $token);
     }
 
+    public function isAdmin(): int
+    {
+        return (bool)$this->info['user']['admin'];
+    }
+
     public function getUid(): int
     {
         return $this->uid;

@@ -27,6 +27,13 @@ Route::group('/api/', function () {
     Route::get('getRouters', [IndexController::class, 'getRouters']);
     Route::post('logout', [IndexController::class, 'logout']);
     Route::get('monitor/logininfor/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:list');
+    Route::get('monitor/online/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:list');
+    // 缓存管理
+    Route::get('monitor/cache', [MonitorController::class, 'info'])->name('monitor:logininfor:list');
+    Route::get('monitor/cache/getNames', [MonitorController::class, 'list'])->name('monitor:logininfor:list');
+    Route::get('monitor/cache/getKeys/{cacheName}', [MonitorController::class, 'keys'])->name('monitor:logininfor:list');
+    Route::get('monitor/cache/getValue/{cacheName}/{cacheKey}', [MonitorController::class, 'view'])->name('monitor:logininfor:list');
+    Route::delete('monitor/cache/clearCacheKey/{cacheKey}', [MonitorController::class, 'delete'])->name('monitor:logininfor:list');
 
     // 用户管理
     Route::get('system/user/list', [UserController::class, 'list'])->name('system:user:list');

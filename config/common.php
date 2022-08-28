@@ -13,14 +13,14 @@
  */
 
 return [
-    'trace' => true,
+    'trace' => false, # 是否记录追踪日志
     'auth' => [
         'key' => getenv('AUTH_KEY'),
         'alg' => 'sha256',
         'expired' => 86400, // token 有效期，单位秒
     ],
     'throttle' => [
-        'enable' => true,
+        'enable' => false, # 是否限流
         'second' => 60,
         'limit' => 120,
     ],

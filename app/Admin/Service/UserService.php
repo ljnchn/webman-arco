@@ -8,6 +8,7 @@ use App\Admin\Model\RoleMenu;
 use App\Admin\Model\User;
 use App\Admin\Model\UserPost;
 use App\Admin\Model\UserRole;
+use App\Enums\CacheType;
 use App\Enums\MenuType;
 use App\Enums\UserStatus;
 use Exception;
@@ -74,7 +75,7 @@ class UserService
         }
         $userData['admin'] = $isAdmin;
         // 查找用户角色权限信息
-        $menuData = $this->getMenuDataByRole($roleIds);
+        $menuData = $this->getMenuDataByRole($roleIds, $isAdmin);
         foreach ($menuData as $menu) {
             if ($menu->perms) {
                 $permissions[] = $menu->perms;
@@ -87,11 +88,11 @@ class UserService
         ];
     }
 
-    function getRouters($uid): array
+    function getRouters($uid, $isAdmin = false): array
     {
         $roleIds = UserRole::where('user_id', $uid)->get()->pluck('role_id')->toArray();
         // 查找用户角色权限信息
-        $menuModels = $this->getMenuDataByRole($roleIds);
+        $menuModels = $this->getMenuDataByRole($roleIds, $isAdmin);
         $menuData   = [];
         foreach ($menuModels as $key => $menuModel) {
             $menu = $menuModel;
@@ -240,18 +241,15 @@ class UserService
     function getMenuDataByRole(array $roleIds, bool $all = false): array
     {
         $returnData = [];
-        $key        = 'menuData';
+        $key        = CacheType::SYSTEM() . 'menu';
         $menuData   = Cache::get($key);
         if (is_null($menuData)) {
             $menuData = Menu::where(['status' => UserStatus::NORMAL(), 'visible' => UserStatus::NORMAL(),])->orderBy('order_num')->get();
             Cache::set($key, $menuData);
         }
-        if ($all) {
-            return $menuData;
-        }
         $menuIds = RoleMenu::query()->whereIn('role_id', $roleIds)->get()->pluck('menu_id')->toArray();
         foreach ($menuData as $menu) {
-            if (in_array($menu->menu_id, $menuIds)) {
+            if ($all || in_array($menu->menu_id, $menuIds)) {
                 $returnData[] = $menu;
             }
         }
