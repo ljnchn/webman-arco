@@ -8,6 +8,7 @@ use ArchTech\Enums\Options;
 /**
  * @method static SYSTEM()
  * @method static CAPTCHA()
+ * @method static DICT()
  */
 enum CacheType: string
 {
@@ -16,5 +17,6 @@ enum CacheType: string
 
     case SYSTEM = 'system:';
     case CAPTCHA = 'captcha:';
+    case DICT = 'dict:';
 
 }

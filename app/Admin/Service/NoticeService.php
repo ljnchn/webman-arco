@@ -4,7 +4,7 @@ namespace App\Admin\Service;
 
 use App\Admin\Model\Notice;
 
-class NoticeService
+class NoticeService extends ParentService
 {
 
     use TraitService;

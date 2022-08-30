@@ -5,7 +5,7 @@ namespace App\Admin\Service;
 use App\Admin\Model\Dept;
 use Carbon\Carbon;
 
-class DeptService
+class DeptService extends ParentService
 {
 
     use TraitService;
@@ -15,7 +15,7 @@ class DeptService
         $this->model = new Dept();
     }
 
-    function add($createData): bool
+    function add($createData): int
     {
         $parentModel               = $this->model::find($createData['parent_id']);
         $createData['ancestors']   = $parentModel->ancestors . ',' . $createData['parent_id'];

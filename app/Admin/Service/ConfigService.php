@@ -4,7 +4,7 @@ namespace App\Admin\Service;
 
 use App\Admin\Model\Config;
 
-class ConfigService
+class ConfigService extends ParentService
 {
 
     use TraitService;

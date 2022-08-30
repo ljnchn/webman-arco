@@ -15,7 +15,7 @@ use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Cache;
 
-class UserService
+class UserService extends ParentService
 {
 
     use TraitService;

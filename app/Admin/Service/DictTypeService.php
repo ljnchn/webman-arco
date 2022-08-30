@@ -4,7 +4,7 @@ namespace App\Admin\Service;
 
 use App\Admin\Model\DictType;
 
-class DictTypeService
+class DictTypeService extends ParentService
 {
 
     use TraitService;

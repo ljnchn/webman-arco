@@ -27,7 +27,7 @@ trait TraitService
      * @return array
      */
     #[ArrayShape(['rows' => "array", 'total' => "int"])]
-    function list($pageSize, $pageNum, array $where = [], array $ascOrder = [], array $descOrder = [], $beginTime = null, $endTime = null): array
+    function traitList($pageSize, $pageNum, array $where = [], array $ascOrder = [], array $descOrder = [], $beginTime = null, $endTime = null): array
     {
         $query = $this->model->newQuery();
         if ($where) {
@@ -56,12 +56,12 @@ trait TraitService
         ];
     }
 
-    function one($id): array
+    function traitOne($id): array
     {
         return getCamelAttributes($this->model->newQuery()->find($id)->attributesToArray());
     }
 
-    function add($createData): int
+    function traitAdd($createData): int
     {
         foreach ($createData as $key => $v) {
             if (is_array($v)) {
@@ -72,7 +72,7 @@ trait TraitService
         return $this->model->insertGetId($createData);
     }
 
-    function edit($updateData): bool
+    function traitEdit($updateData): bool
     {
         foreach ($updateData as $key => $v) {
             if (is_array($v)) {
@@ -85,12 +85,12 @@ trait TraitService
         return true;
     }
 
-    function del($id): ?bool
+    function traitDel($id): ?bool
     {
         return $this->model->find($id)->delete();
     }
 
-    function query(): Builder
+    function traitQuery(): Builder
     {
         return $this->model->newQuery();
     }

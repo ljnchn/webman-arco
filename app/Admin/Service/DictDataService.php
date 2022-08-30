@@ -3,9 +3,11 @@
 namespace App\Admin\Service;
 
 use App\Admin\Model\DictData;
+use App\Enums\CacheType;
 use App\Enums\Constant;
+use support\Cache;
 
-class DictDataService
+class DictDataService extends ParentService
 {
     use TraitService;
 
@@ -16,17 +18,21 @@ class DictDataService
 
     function getDictDataByType($type): array
     {
-        $modelList = $this->model
-            ->where('dict_type', $type)
-            ->where('status', Constant::NORMAL())
-            ->orderBy('dict_sort')
-            ->get();
+        $cacheKey = CacheType::DICT() . $type;
+        $data = Cache::get($cacheKey) ?? [];
+        if (!$data) {
+            $modelList = $this->model
+                ->where('dict_type', $type)
+                ->where('status', Constant::NORMAL())
+                ->orderBy('dict_sort')
+                ->get();
 
-        $data = [];
-        foreach ($modelList as $model) {
-            $item            = getCamelAttributes($model->attributesToArray());
-            $item['default'] = $item['isDefault'] == 'Y';
-            $data[]          = $item;
+            foreach ($modelList as $model) {
+                $item            = getCamelAttributes($model->attributesToArray());
+                $data[]          = $item;
+                $item['default'] = $item['isDefault'] == 'Y';
+            }
+            Cache::set($cacheKey, $data);
         }
         return $data;
     }

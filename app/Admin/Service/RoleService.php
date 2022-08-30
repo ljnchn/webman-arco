@@ -8,7 +8,7 @@ use App\Admin\Model\Role;
 use App\Admin\Model\RoleMenu;
 use Carbon\Carbon;
 
-class RoleService
+class RoleService extends ParentService
 {
     use TraitService;
 
@@ -17,7 +17,7 @@ class RoleService
         $this->model = new Role();
     }
 
-    function add($createData): bool
+    function add($createData): int
     {
         $createData['create_time'] = Carbon::now();
         $model                     = $this->query()->create($createData);

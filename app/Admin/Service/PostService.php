@@ -4,7 +4,7 @@ namespace App\Admin\Service;
 
 use App\Admin\Model\Post;
 
-class PostService
+class PostService extends ParentService
 {
 
     use TraitService;
