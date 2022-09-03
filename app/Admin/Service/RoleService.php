@@ -8,10 +8,8 @@ use App\Admin\Model\Role;
 use App\Admin\Model\RoleMenu;
 use Carbon\Carbon;
 
-class RoleService extends ParentService
+class RoleService extends BaseService
 {
-    use TraitService;
-
     public function __construct()
     {
         $this->model = new Role();
@@ -30,6 +28,18 @@ class RoleService extends ParentService
         return true;
     }
 
+    function addRoleMenu($roleId, $menuIds): void
+    {
+        $roleMenuArray = [];
+        foreach ($menuIds as $menu_id) {
+            $roleMenuArray[] = [
+                'role_id' => $roleId,
+                'menu_id' => $menu_id
+            ];
+        }
+        RoleMenu::insert($roleMenuArray);
+    }
+
     function edit($updateData): bool
     {
         $id      = $updateData[$this->model->getKeyName()];
@@ -45,6 +55,11 @@ class RoleService extends ParentService
         return true;
     }
 
+    function delRoleMenu($roleId): void
+    {
+        RoleMenu::where('role_id', $roleId)->delete();
+    }
+
     function del($id): ?bool
     {
         $this->delRoleMenu($id);
@@ -55,23 +70,6 @@ class RoleService extends ParentService
     {
         $this->query()->whereKey($roleId)->update(['status' => $status]);
         return true;
-    }
-
-    function addRoleMenu($roleId, $menuIds): void
-    {
-        $roleMenuArray = [];
-        foreach ($menuIds as $menu_id) {
-            $roleMenuArray[] = [
-                'role_id' => $roleId,
-                'menu_id' => $menu_id
-            ];
-        }
-        RoleMenu::insert($roleMenuArray);
-    }
-
-    function delRoleMenu($roleId): void
-    {
-        RoleMenu::where('role_id', $roleId)->delete();
     }
 
     function roleMenu($roleId): array

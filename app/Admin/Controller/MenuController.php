@@ -4,15 +4,12 @@
 namespace App\Admin\Controller;
 
 use App\Admin\Service\MenuService;
-use DI\Annotation\Inject;
 
-class MenuController
+class MenuController extends BaseController
 {
-    /**
-     * @Inject
-     * @var MenuService
-     */
-    private MenuService $service;
 
-    use TraitController;
+    public function __construct()
+    {
+        $this->service = new MenuService();
+    }
 }

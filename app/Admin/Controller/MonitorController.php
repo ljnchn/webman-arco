@@ -9,7 +9,7 @@ use support\Redis;
 use support\Request;
 use support\Response;
 
-class MonitorController
+class MonitorController extends BaseController
 {
     public function loginInfo(Request $request): Response
     {
@@ -47,24 +47,24 @@ class MonitorController
      */
     public function info(Request $request): Response
     {
-        $info = Redis::info();
+        $info         = Redis::info();
         $commandStats = [];
-        $database = getenv('REDIS_DATABASE');
-        $dbSize = 0;
-        if (isset($info['db'.$database])) {
-            $arr = explode(',', $info['db'.$database]);
+        $database     = getenv('REDIS_DATABASE');
+        $dbSize       = 0;
+        if (isset($info['db' . $database])) {
+            $arr    = explode(',', $info['db' . $database]);
             $dbSize = str_replace('keys=', '', $arr[0]);
         }
         foreach (Redis::info('COMMANDSTATS') as $key => $command) {
             $commandStats[] = [
-                'name' => str_replace('cmdstat_', '', $key),
+                'name'  => str_replace('cmdstat_', '', $key),
                 'value' => str_replace('calls=', '', explode(',', $command)[0])
             ];
         }
         return successJson([
-            'dbSize' => $dbSize,
+            'dbSize'       => $dbSize,
             'commandStats' => $commandStats,
-            'info' => $info,
+            'info'         => $info,
         ]);
     }
 
@@ -78,7 +78,7 @@ class MonitorController
         $cacheTypeList = [];
         foreach (CacheType::options() as $key => $value) {
             $cacheTypeList[] = [
-                'remark' => $key,
+                'remark'    => $key,
                 'cacheName' => $value,
             ];
         }
@@ -106,8 +106,8 @@ class MonitorController
     public function view(Request $request, string $cacheName, string $cacheKey): Response
     {
         return successJson([
-            'cacheKey' => $cacheKey,
-            'cacheName' => $cacheName,
+            'cacheKey'   => $cacheKey,
+            'cacheName'  => $cacheName,
             'cacheValue' => Redis::get($cacheKey),
         ]);
     }

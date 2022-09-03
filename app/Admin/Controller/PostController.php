@@ -5,11 +5,8 @@ namespace App\Admin\Controller;
 
 use App\Admin\Service\PostService;
 
-class PostController
+class PostController extends BaseController
 {
-    private PostService $service;
-    use TraitController;
-
     public function __construct()
     {
         $this->service = new PostService();

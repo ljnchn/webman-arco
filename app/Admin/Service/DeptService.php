@@ -5,11 +5,8 @@ namespace App\Admin\Service;
 use App\Admin\Model\Dept;
 use Carbon\Carbon;
 
-class DeptService extends ParentService
+class DeptService extends BaseService
 {
-
-    use TraitService;
-
     public function __construct()
     {
         $this->model = new Dept();

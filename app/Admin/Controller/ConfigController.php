@@ -5,11 +5,8 @@ namespace App\Admin\Controller;
 
 use App\Admin\Service\ConfigService;
 
-class ConfigController
+class ConfigController extends BaseController
 {
-    private ConfigService $service;
-    use TraitController;
-
     public function __construct()
     {
         $this->service = new ConfigService();

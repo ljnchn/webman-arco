@@ -8,12 +8,8 @@ use App\Enums\HttpCode;
 use support\Request;
 use support\Response;
 
-class DeptController
+class DeptController extends BaseController
 {
-    private DeptService $service;
-
-    use TraitController;
-
     public function __construct()
     {
         $this->service = new DeptService();

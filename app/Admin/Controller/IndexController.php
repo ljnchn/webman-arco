@@ -93,13 +93,13 @@ class IndexController
      */
     public function getInfo(): Response
     {
-        $userInfo         = $this->userService->getUserInfo(user()->getUid());
+        $userInfo = $this->userService->getUserInfo(user()->getUid());
         return json([
-            'code' => HttpCode::SUCCESS(),
-            'msg' => 'success',
+            'code'        => HttpCode::SUCCESS(),
+            'msg'         => 'success',
             'permissions' => $userInfo['permissions'],
-            'roles' => $userInfo['roles'],
-            'user' => $userInfo['user'],
+            'roles'       => $userInfo['roles'],
+            'user'        => $userInfo['user'],
         ]);
     }
 

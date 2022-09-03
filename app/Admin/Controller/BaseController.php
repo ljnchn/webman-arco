@@ -3,15 +3,17 @@
 
 namespace App\Admin\Controller;
 
+use App\Admin\Service\BaseService;
 use App\Enums\HttpCode;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
 
-trait TraitController
+class BaseController
 {
 
+    public BaseService $service;
     public array $where = [];
     public array $ascOrder = [];
     public array $descOrder = [];

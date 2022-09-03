@@ -7,10 +7,8 @@ use App\Admin\Service\DictTypeService;
 use support\Request;
 use support\Response;
 
-class DictTypeController
+class DictTypeController extends BaseController
 {
-    private DictTypeService $service;
-    use TraitController;
 
     public function __construct()
     {

@@ -13,11 +13,8 @@ use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
 
-class UserController
+class UserController extends BaseController
 {
-
-    private UserService $service;
-    use TraitController;
 
     public function __construct()
     {
@@ -35,8 +32,8 @@ class UserController
             $value = getCamelAttributes($value);
         });
         return json([
-            'code' => 200,
-            'msg' => 'success',
+            'code'  => 200,
+            'msg'   => 'success',
             'posts' => getCamelAttributes($postList),
             'roles' => getCamelAttributes($roleList)
         ]);
@@ -52,16 +49,16 @@ class UserController
         array_walk($roleList, function (&$value, $key) {
             $value = getCamelAttributes($value);
         });
-        $data = $this->service->one($id);
+        $data    = $this->service->one($id);
         $postIds = UserPost::where('user_id', $id)->pluck('post_id');
         $roleIds = UserRole::where('user_id', $id)->pluck('role_id');
 
         return json([
-            'code' => 200,
-            'msg' => 'success',
-            'data' => $data,
-            'posts' => getCamelAttributes($postList),
-            'roles' => getCamelAttributes($roleList),
+            'code'    => 200,
+            'msg'     => 'success',
+            'data'    => $data,
+            'posts'   => getCamelAttributes($postList),
+            'roles'   => getCamelAttributes($roleList),
             'postIds' => $postIds,
             'roleIds' => $roleIds,
         ]);
@@ -107,7 +104,7 @@ class UserController
 
     public function resetPwd(Request $request): Response
     {
-        $userId = $request->input('userId');
+        $userId   = $request->input('userId');
         $password = $request->input('password');
         if ($this->service->resetPwd($userId, $password)) {
             return successJson();

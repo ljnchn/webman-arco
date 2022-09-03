@@ -8,11 +8,8 @@ use App\Enums\HttpCode;
 use support\Request;
 use support\Response;
 
-class DictDataController
+class DictDataController extends BaseController
 {
-    private DictDataService $service;
-
-    use TraitController;
 
     public function __construct()
     {

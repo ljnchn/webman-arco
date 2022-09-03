@@ -4,10 +4,8 @@ namespace App\Admin\Service;
 
 use App\Admin\Model\Post;
 
-class PostService extends ParentService
+class PostService extends BaseService
 {
-
-    use TraitService;
 
     public function __construct()
     {

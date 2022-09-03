@@ -4,11 +4,8 @@ namespace App\Admin\Service;
 
 use App\Admin\Model\Menu;
 
-class MenuService extends ParentService
+class MenuService extends BaseService
 {
-
-    use TraitService;
-
     public function __construct()
     {
         $this->model = new Menu();

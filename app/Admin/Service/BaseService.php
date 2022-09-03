@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Admin\Service;
 
 use Carbon\Carbon;
@@ -8,26 +7,26 @@ use Illuminate\Database\Eloquent\Builder;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Model;
 
-trait TraitService
+class BaseService
 {
-
     /**
      * @var Model
      */
     public Model $model;
 
     /**
-     * @param       $pageSize
-     * @param       $pageNum
-     * @param array $where     筛选条件
-     * @param array $ascOrder  正序字段
-     * @param array $descOrder 倒序字段
-     * @param       $beginTime
-     * @param       $endTime
+     * 根据条件获取分页数量
+     * @param int    $pageSize  每页数量
+     * @param int    $pageNum   当前页数
+     * @param array  $where     筛选条件
+     * @param array  $ascOrder  正序字段
+     * @param array  $descOrder 倒序字段
+     * @param string $beginTime 开始时间
+     * @param string $endTime   结束时间
      * @return array
      */
     #[ArrayShape(['rows' => "array", 'total' => "int"])]
-    function traitList($pageSize, $pageNum, array $where = [], array $ascOrder = [], array $descOrder = [], $beginTime = null, $endTime = null): array
+    function list(int $pageSize, int $pageNum, array $where = [], array $ascOrder = [], array $descOrder = [], $beginTime = null, $endTime = null): array
     {
         $query = $this->model->newQuery();
         if ($where) {
@@ -56,12 +55,22 @@ trait TraitService
         ];
     }
 
-    function traitOne($id): array
+    /**
+     * 根据 ID 获取单条数据
+     * @param $id
+     * @return array
+     */
+    function one($id): array
     {
-        return getCamelAttributes($this->model->newQuery()->find($id)->attributesToArray());
+        return getCamelAttributes($this->query()->find($id)->attributesToArray());
     }
 
-    function traitAdd($createData): int
+    /**
+     * 新增数据
+     * @param $createData
+     * @return int
+     */
+    function add($createData): int
     {
         foreach ($createData as $key => $v) {
             if (is_array($v)) {
@@ -72,7 +81,12 @@ trait TraitService
         return $this->model->insertGetId($createData);
     }
 
-    function traitEdit($updateData): bool
+    /**
+     * 编辑数据
+     * @param $updateData
+     * @return bool
+     */
+    function edit($updateData): bool
     {
         foreach ($updateData as $key => $v) {
             if (is_array($v)) {
@@ -85,12 +99,21 @@ trait TraitService
         return true;
     }
 
-    function traitDel($id): ?bool
+    /**
+     * 删除数据
+     * @param $id
+     * @return bool|null
+     */
+    function del($id): ?bool
     {
         return $this->model->find($id)->delete();
     }
 
-    function traitQuery(): Builder
+    /**
+     * 查询 builder
+     * @return Builder
+     */
+    function query(): Builder
     {
         return $this->model->newQuery();
     }

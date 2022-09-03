@@ -7,10 +7,8 @@ use App\Enums\CacheType;
 use App\Enums\Constant;
 use support\Cache;
 
-class DictDataService extends ParentService
+class DictDataService extends BaseService
 {
-    use TraitService;
-
     public function __construct()
     {
         $this->model = new DictData();
@@ -19,7 +17,7 @@ class DictDataService extends ParentService
     function getDictDataByType($type): array
     {
         $cacheKey = CacheType::DICT() . $type;
-        $data = Cache::get($cacheKey) ?? [];
+        $data     = Cache::get($cacheKey) ?? [];
         if (!$data) {
             $modelList = $this->model
                 ->where('dict_type', $type)

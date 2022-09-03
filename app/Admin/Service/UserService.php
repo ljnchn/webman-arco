@@ -15,11 +15,8 @@ use Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Cache;
 
-class UserService extends ParentService
+class UserService extends BaseService
 {
-
-    use TraitService;
-
     function __construct()
     {
         $this->model = new User();
@@ -86,6 +83,30 @@ class UserService extends ParentService
             'roles'       => $roleKeys,
             'permissions' => $permissions,
         ];
+    }
+
+    /**
+     * 根据角色ID获取菜单
+     * @param array $roleIds
+     * @param bool  $all
+     * @return array
+     */
+    function getMenuDataByRole(array $roleIds, bool $all = false): array
+    {
+        $returnData = [];
+        $key        = CacheType::SYSTEM() . 'menu';
+        $menuData   = Cache::get($key);
+        if (is_null($menuData)) {
+            $menuData = Menu::where(['status' => UserStatus::NORMAL(), 'visible' => UserStatus::NORMAL(),])->orderBy('order_num')->get();
+            Cache::set($key, $menuData);
+        }
+        $menuIds = RoleMenu::query()->whereIn('role_id', $roleIds)->get()->pluck('menu_id')->toArray();
+        foreach ($menuData as $menu) {
+            if ($all || in_array($menu->menu_id, $menuIds)) {
+                $returnData[] = $menu;
+            }
+        }
+        return $returnData;
     }
 
     function getRouters($uid, $isAdmin = false): array
@@ -229,31 +250,6 @@ class UserService extends ParentService
             'password' => password_hash($password, PASSWORD_DEFAULT)
         ]);
         return true;
-    }
-
-
-    /**
-     * 根据角色ID获取菜单
-     * @param array $roleIds
-     * @param bool  $all
-     * @return array
-     */
-    function getMenuDataByRole(array $roleIds, bool $all = false): array
-    {
-        $returnData = [];
-        $key        = CacheType::SYSTEM() . 'menu';
-        $menuData   = Cache::get($key);
-        if (is_null($menuData)) {
-            $menuData = Menu::where(['status' => UserStatus::NORMAL(), 'visible' => UserStatus::NORMAL(),])->orderBy('order_num')->get();
-            Cache::set($key, $menuData);
-        }
-        $menuIds = RoleMenu::query()->whereIn('role_id', $roleIds)->get()->pluck('menu_id')->toArray();
-        foreach ($menuData as $menu) {
-            if ($all || in_array($menu->menu_id, $menuIds)) {
-                $returnData[] = $menu;
-            }
-        }
-        return $returnData;
     }
 
 }

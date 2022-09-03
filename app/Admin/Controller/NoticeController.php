@@ -5,11 +5,8 @@ namespace App\Admin\Controller;
 
 use App\Admin\Service\NoticeService;
 
-class NoticeController
+class NoticeController extends BaseController
 {
-    private NoticeService $service;
-    use TraitController;
-
     public function __construct()
     {
         $this->service = new NoticeService();
