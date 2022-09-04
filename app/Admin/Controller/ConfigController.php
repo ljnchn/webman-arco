@@ -9,7 +9,10 @@ class ConfigController extends BaseController
 {
     public function __construct()
     {
-        $this->service = new ConfigService();
+        $this->service     = new ConfigService();
+        $this->customParam = ['configName', 'configKey', 'configType'];
+
+        parent::__construct();
     }
 
 }

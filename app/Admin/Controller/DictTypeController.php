@@ -13,6 +13,7 @@ class DictTypeController extends BaseController
     public function __construct()
     {
         $this->service = new DictTypeService();
+        parent::__construct();
     }
 
     public function optionList(Request $request): Response

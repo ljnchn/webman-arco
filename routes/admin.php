@@ -11,6 +11,7 @@ use App\Admin\Controller\NoticeController;
 use App\Admin\Controller\PostController;
 use App\Admin\Controller\RoleController;
 use App\Admin\Controller\UserController;
+use App\Admin\Controller\UserLoginController;
 use Webman\Route;
 
 Route::group('/api/', function () {
@@ -26,7 +27,7 @@ Route::group('/api/', function () {
     Route::get('getInfo', [IndexController::class, 'getInfo']);
     Route::get('getRouters', [IndexController::class, 'getRouters']);
     Route::post('logout', [IndexController::class, 'logout']);
-    Route::get('monitor/logininfor/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:list');
+    Route::get('monitor/logininfor/list', [UserLoginController::class, 'list'])->name('monitor:logininfor:list');
     Route::get('monitor/online/list', [MonitorController::class, 'loginInfo'])->name('monitor:logininfor:list');
     // 缓存管理
     Route::get('monitor/cache', [MonitorController::class, 'info'])->name('monitor:logininfor:list');
@@ -38,6 +39,7 @@ Route::group('/api/', function () {
     // 用户管理
     Route::get('system/user/list', [UserController::class, 'list'])->name('system:user:list');
     Route::get('system/user/', [UserController::class, 'info'])->name('system:user:query');
+    Route::get('system/user/deptTree', [DeptController::class, 'treeselect'])->name('system:user:query');
     Route::get('system/user/{id}', [UserController::class, 'one'])->name('system:user:query');
     Route::post('system/user', [UserController::class, 'add'])->name('system:user:add');
     Route::put('system/user', [UserController::class, 'edit'])->name('system:user:edit');

@@ -13,7 +13,10 @@ class RoleController extends BaseController
 
     public function __construct()
     {
-        $this->service = new RoleService();
+        $this->customParam = ['roleName', 'roleKey'];
+        $this->service     = new RoleService();
+
+        parent::__construct();
     }
 
     public function changeStatus(Request $request): Response

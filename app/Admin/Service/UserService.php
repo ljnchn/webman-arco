@@ -3,6 +3,7 @@
 namespace App\Admin\Service;
 
 use App\Admin\Model\Menu;
+use App\Admin\Model\Post;
 use App\Admin\Model\Role;
 use App\Admin\Model\RoleMenu;
 use App\Admin\Model\User;
@@ -158,7 +159,7 @@ class UserService extends BaseService
     /**
      * @throws Exception
      */
-    function userAdd($createData): bool
+    function add($createData): int
     {
         $postIds = $createData['post_ids'];
         $roleIds = $createData['role_ids'];
@@ -175,7 +176,7 @@ class UserService extends BaseService
         }
 
         $createData['password'] = password_hash($createData['password'], PASSWORD_DEFAULT);
-        $userId                 = $this->add($createData);
+        $userId                 = parent::add($createData);
         $this->delUserPost($userId);
         if ($postIds) {
             $this->addUserPost($userId, $postIds);
@@ -184,7 +185,7 @@ class UserService extends BaseService
         if ($roleIds) {
             $this->addUserRole($userId, $postIds);
         }
-        return true;
+        return $userId;
     }
 
     function delUserPost($userId)
@@ -221,10 +222,36 @@ class UserService extends BaseService
         return UserRole::insert($insertData);
     }
 
-    function userEdit($updateData): bool
+
+    #[ArrayShape(['code' => "int", 'msg' => "string", 'data' => "array", 'posts' => "array", 'roles' => "array", 'postIds' => "mixed", 'roleIds' => "mixed"])]
+    function one($id): array
+    {
+        $data     = parent::one($id);
+        $postList = Post::get()->toArray();
+        $roleList = Role::get()->toArray();
+        array_walk($postList, function (&$value, $key) {
+            $value = getCamelAttributes($value);
+        });
+        array_walk($roleList, function (&$value, $key) {
+            $value = getCamelAttributes($value);
+        });
+        $postIds = UserPost::where('user_id', $id)->pluck('post_id')->toArray();
+        $roleIds = UserRole::where('user_id', $id)->pluck('role_id')->toArray();
+        return [
+            'code'    => 200,
+            'msg'     => 'success',
+            'data'    => $data,
+            'posts'   => getCamelAttributes($postList),
+            'roles'   => getCamelAttributes($roleList),
+            'postIds' => $postIds,
+            'roleIds' => $roleIds,
+        ];
+    }
+
+    function edit($updateData): bool
     {
         $userId = $updateData['user_id'];
-        $this->edit($updateData);
+        parent::edit($updateData);
         $this->delUserPost($userId);
         if ($updateData['post_ids']) {
             $this->addUserPost($userId, $updateData['post_ids']);
@@ -236,11 +263,11 @@ class UserService extends BaseService
         return true;
     }
 
-    function userDel($userId): bool
+    function del($id): bool
     {
-        $this->del($userId);
-        $this->delUserPost($userId);
-        $this->delUserRole($userId);
+        parent::del($id);
+        $this->delUserPost($id);
+        $this->delUserRole($id);
         return true;
     }
 

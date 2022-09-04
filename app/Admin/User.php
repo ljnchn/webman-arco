@@ -177,4 +177,13 @@ class User
         $this->info = $info;
     }
 
+    public function getName() {
+        return $this->getInfo()['user']['userName'];
+    }
+
+    public function getPermissions()
+    {
+        return $this->getInfo()['permissions'];
+    }
+
 }

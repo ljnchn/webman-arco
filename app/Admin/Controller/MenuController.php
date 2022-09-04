@@ -10,6 +10,9 @@ class MenuController extends BaseController
 
     public function __construct()
     {
-        $this->service = new MenuService();
+        $this->service     = new MenuService();
+        $this->customParam = ['menuName'];
+
+        parent::__construct();
     }
 }

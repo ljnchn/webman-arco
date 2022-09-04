@@ -11,6 +11,7 @@ use support\Response;
 
 class MonitorController extends BaseController
 {
+
     public function loginInfo(Request $request): Response
     {
         $query = UserLogin::query();

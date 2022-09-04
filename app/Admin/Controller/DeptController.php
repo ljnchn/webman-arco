@@ -4,7 +4,6 @@
 namespace App\Admin\Controller;
 
 use App\Admin\Service\DeptService;
-use App\Enums\HttpCode;
 use support\Request;
 use support\Response;
 
@@ -12,21 +11,13 @@ class DeptController extends BaseController
 {
     public function __construct()
     {
-        $this->service = new DeptService();
-    }
-
-    public function list(Request $request): Response
-    {
-        $pageSize = $request->pageSize;
-        $pageNum  = $request->pageNum;
-        $ascOrder = ['order_num', 'parent_id'];
-        $list     = $this->service->list($pageSize, $pageNum, [], $ascOrder);
-        return json([
-            'code'  => HttpCode::SUCCESS(),
-            'msg'   => 'success',
-            'rows'  => $list['rows'],
-            'total' => $list['total']
-        ]);
+        parent::__construct();
+        $this->service  = new DeptService();
+        $this->ascOrder = ['order_num', 'parent_id'];
+        $deptName       = request()->get('deptName');
+        if ($deptName) {
+            $this->where[] = ['dept_name', 'like', '%' . $deptName . '%'];
+        }
     }
 
     public function treeSelect(Request $request): Response
