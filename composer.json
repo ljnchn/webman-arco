@@ -44,10 +44,10 @@
     "s1syphos/php-simple-captcha": "^2.2",
     "ljnchn/captcha": "^1.1",
     "archtechx/enums": "^0.3.0",
-    "illuminate/validation": "^9.24",
     "jenssegers/agent": "^2.6",
     "zoujingli/ip2region": "^2.0",
-    "webman/redis-queue": "^1.2"
+    "webman/redis-queue": "^1.2",
+    "topthink/think-validate": "^2.0"
   },
   "suggest": {
     "ext-event": "For better performance. "

@@ -16,20 +16,16 @@ class DeptService extends BaseService
     {
         $parentModel               = $this->model::find($createData['parent_id']);
         $createData['ancestors']   = $parentModel->ancestors . ',' . $createData['parent_id'];
-        $createData['create_time'] = Carbon::now();
-        return $this->model->insert($createData);
+        return parent::add($createData);
     }
 
     function edit($updateData): bool
     {
-        $id          = $updateData[$this->model->getKeyName()];
-        $key         = $this->model->getKeyName();
         $parentModel = $this->model->find($updateData['parent_id']);
         if ($parentModel) {
             $updateData['ancestors'] = $parentModel->ancestors . ',' . $updateData['parent_id'];
         }
-        $this->model->newQuery()->where($key, $id)->update($updateData);
-        return true;
+        return parent::edit($updateData);
     }
 
     function treeSelect(): array
