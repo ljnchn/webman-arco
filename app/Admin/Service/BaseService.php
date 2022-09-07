@@ -17,11 +17,6 @@ class BaseService
     public Model $model;
 
     /**
-     * @var Validate|null
-     */
-    public ?Validate $validate = null;
-
-    /**
      * 根据条件获取分页数量
      * @param int         $pageSize  每页数量
      * @param int         $pageNum   当前页数
@@ -91,14 +86,6 @@ class BaseService
      */
     function add($createData): int
     {
-        if ($this->validate) {
-            if ($this->validate->hasScene('add')) {
-                $this->validate->scene('add');
-            }
-            if (!$this->validate->check($createData)) {
-               throw new Exception(implode(';', $this->validate->getError()));
-            }
-        }
         foreach ($createData as $key => $v) {
             if (is_array($v)) {
                 unset($createData[$key]);
@@ -119,15 +106,6 @@ class BaseService
         foreach ($updateData as $key => $v) {
             if (is_array($v)) {
                 unset($updateData[$key]);
-            }
-        }
-        if ($this->validate) {
-            if ($this->validate->hasScene('edit')) {
-                $this->validate->scene('edit');
-            }
-            if (!$this->validate->check($updateData)) {
-                $error = is_array($this->validate->getError()) ? implode(';', $this->validate->getError()) : $this->validate->getError();
-                throw new Exception($error);
             }
         }
         $query = $this->model->newQuery();

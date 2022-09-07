@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Middleware;
 
 use Carbon\Carbon;
@@ -6,33 +7,35 @@ use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Redis\Events\CommandExecuted;
 use support\Db;
 use support\Redis;
-use Webman\MiddlewareInterface;
-use Webman\Http\Response;
 use Webman\Http\Request;
+use Webman\Http\Response;
+use Webman\MiddlewareInterface;
 
 class TraceLog implements MiddlewareInterface
 {
-    private array $items;
+    private array $items = [];
 
     /**
      * @param Request $request
      * @param callable $handler
      * @return Response
      */
-    public function process(Request $request, callable $handler) : Response
+    public function process(Request $request, callable $handler): Response
     {
-        if (!config('common.trace')) {
+        $traceConfig = config('common.trace');
+        if (!$traceConfig || !$traceConfig['request']) {
             return $handler($request);
         }
         static $initialized;
-        $this->items = array();
-        $startTime = microtime(true);
-        $ip = $request->getRealIp();
-        $method = $request->method();
-        $url = trim($request->fullUrl(), '/');
+        $this->items = [];
+        $startTime   = microtime(true);
+        $ip          = $request->getRealIp();
+        $method      = $request->method();
+        $url         = trim($request->fullUrl(), '/');
 
         if (!$initialized) {
-            if (class_exists(QueryExecuted::class)) {
+            // 监听 mysql
+            if ($traceConfig['mysql'] && class_exists(QueryExecuted::class)) {
                 try {
                     Db::listen(function (QueryExecuted $query) {
                         $sql = trim($query->sql);
@@ -49,19 +52,20 @@ class TraceLog implements MiddlewareInterface
                                 }
                             }
                         }
-                        $log = vsprintf($sql, $query->bindings);
+                        $log           = vsprintf($sql, $query->bindings);
                         $this->items[] = [
-                            'type' => 'mysql',
+                            'type'       => 'mysql',
                             'connection' => $query->connectionName,
-                            'command' => $log,
-                            'exec_time' => round($query->time, 2),
+                            'command'    => $log,
+                            'exec_time'  => round($query->time, 2),
                         ];
                     });
                 } catch (\Throwable $e) {
                     echo $e;
                 }
             }
-            if (class_exists(CommandExecuted::class)) {
+            // 监听 redis
+            if ($traceConfig['redis'] && class_exists(CommandExecuted::class)) {
                 foreach (config('redis', []) as $key => $config) {
                     if (str_contains($key, 'redis-queue')) {
                         continue;
@@ -74,10 +78,10 @@ class TraceLog implements MiddlewareInterface
                                 }
                             }
                             $this->items[] = [
-                                'type' => 'redis',
+                                'type'       => 'redis',
                                 'connection' => $command->connectionName,
-                                'command' => "$command->command('" . implode('\', \'', $command->parameters) . "')",
-                                'exec_time' => round($command->time, 2),
+                                'command'    => "$command->command('" . implode('\', \'', $command->parameters) . "')",
+                                'exec_time'  => round($command->time, 2),
                             ];
                         });
                     } catch (\Throwable $e) {
@@ -88,26 +92,26 @@ class TraceLog implements MiddlewareInterface
         }
 
         $response = $handler($request);
-        $params = null;
+        $params   = null;
         if ($request->method() === 'POST') {
             $params = json_encode($request->post());
         }
-        $execTime = substr((microtime(true) - $startTime) * 1000, 0, 7);
+        $execTime  = substr((microtime(true) - $startTime) * 1000, 0, 7);
         $exception = '';
         if (method_exists($response, 'exception')) {
             $exception = $response->exception();
         }
         // 保存日志
         $id = Db::table('webman_log')->insertGetId([
-            'ip' => $ip,
-            'method' => $method,
-            'url' => $url,
-            'params' => $params,
-            'exec_time' => round($execTime, 2),
-            'exception' => $exception,
+            'ip'           => $ip,
+            'method'       => $method,
+            'url'          => $url,
+            'params'       => $params,
+            'exec_time'    => round($execTime, 2),
+            'exception'    => $exception,
             'created_time' => Carbon::now(),
         ]);
-        if ($id && count($this->items)) {
+        if ($id && count($this->items) > 0) {
             foreach ($this->items as $key => $item) {
                 $this->items[$key]['pid'] = $id;
             }

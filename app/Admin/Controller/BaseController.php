@@ -9,19 +9,21 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
+use think\Validate;
 
 class BaseController
 {
 
     public BaseService $service;
-    public array $where = [];
-    public array $ascOrder = [];
-    public array $descOrder = [];
-    public array $commonParam = [];
-    public array $customParam = [];
-    public string $queryDate = 'create_time';
-    public string|null $beginTime = null;
-    public string|null $endTime = null;
+    public ?Validate   $validate    = null;
+    public array       $where       = [];
+    public array       $ascOrder    = [];
+    public array       $descOrder   = [];
+    public array       $commonParam = [];
+    public array       $customParam = [];
+    public string      $queryDate   = 'create_time';
+    public string|null $beginTime   = null;
+    public string|null $endTime     = null;
 
     public function __construct()
     {
@@ -95,6 +97,15 @@ class BaseController
         }
         $creatData['create_by']   = user()->getName();
         $creatData['create_time'] = Carbon::now();
+        if ($this->validate) {
+            if ($this->validate->hasScene('add')) {
+                $this->validate->scene('add');
+            }
+            if (!$this->validate->check($creatData)) {
+                $error = !is_array($this->validate->getError()) ?: implode(';', $this->validate->getError());
+                return failJson($error);
+            }
+        }
         if ($this->service->add($creatData)) {
             return successJson();
         } else {
@@ -110,6 +121,15 @@ class BaseController
         }
         $updateData['update_by']   = user()->getName();
         $updateData['update_time'] = Carbon::now();
+        if ($this->validate) {
+            if ($this->validate->hasScene('edit')) {
+                $this->validate->scene('edit');
+            }
+            if (!$this->validate->check($updateData)) {
+                $error = !is_array($this->validate->getError()) ?: implode(';', $this->validate->getError());
+                return failJson($error);
+            }
+        }
         if ($this->service->edit($updateData)) {
             return successJson();
         } else {

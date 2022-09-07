@@ -13,7 +13,11 @@
  */
 
 return [
-    'trace' => false, # 是否记录追踪日志
+    'trace' => [
+        'request' => false, # 是否记录追踪日志
+        'mysql' => false, # 是否记录追踪日志
+        'redis' => false, # 是否记录追踪日志
+    ],
     'auth' => [
         'key' => getenv('AUTH_KEY'),
         'alg' => 'sha256',

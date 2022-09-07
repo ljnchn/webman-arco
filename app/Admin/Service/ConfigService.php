@@ -10,6 +10,5 @@ class ConfigService extends BaseService
     public function __construct()
     {
         $this->model = new Config();
-        $this->validate = new ConfigValidate();
     }
 }
