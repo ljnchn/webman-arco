@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bf6eaf37a27a64ef5e37b853bdd1d2b4",
+    "content-hash": "f78115210e6c8e09cc6128d0f82e1459",
     "packages": [
         {
             "name": "archtechx/enums",
@@ -4468,6 +4468,91 @@
                 }
             ],
             "time": "2022-03-08T17:03:00+00:00"
+        },
+        {
+            "name": "webman-tech/laravel-translation",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webman-tech/laravel-translation.git",
+                "reference": "431159f1756d27f5184a920de664a7192fc8cf26"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webman-tech/laravel-translation/zipball/431159f1756d27f5184a920de664a7192fc8cf26",
+                "reference": "431159f1756d27f5184a920de664a7192fc8cf26",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/translation": ">=8",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "symfony/translation": "^5.4",
+                "workerman/webman-framework": "^1.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/helper.php"
+                ],
+                "psr-4": {
+                    "WebmanTech\\LaravelTranslation\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Webman plugin webman-tech/laravel-translation",
+            "support": {
+                "issues": "https://github.com/webman-tech/laravel-translation/issues",
+                "source": "https://github.com/webman-tech/laravel-translation/tree/v1.0.1"
+            },
+            "time": "2022-09-18T03:12:42+00:00"
+        },
+        {
+            "name": "webman-tech/laravel-validation",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webman-tech/laravel-validation.git",
+                "reference": "b469c174ba41980b9d744665c20563ac333a9302"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webman-tech/laravel-validation/zipball/b469c174ba41980b9d744665c20563ac333a9302",
+                "reference": "b469c174ba41980b9d744665c20563ac333a9302",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/validation": ">=8",
+                "php": ">=7.2",
+                "webman-tech/laravel-translation": "^1.0"
+            },
+            "require-dev": {
+                "symfony/translation": "^5.4",
+                "workerman/webman-framework": "^1.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/helper.php"
+                ],
+                "psr-4": {
+                    "WebmanTech\\LaravelValidation\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Webman plugin webman-tech/laravel-validation",
+            "support": {
+                "issues": "https://github.com/webman-tech/laravel-validation/issues",
+                "source": "https://github.com/webman-tech/laravel-validation/tree/v1.0.2"
+            },
+            "time": "2022-09-18T03:06:28+00:00"
         },
         {
             "name": "webman/console",

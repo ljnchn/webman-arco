@@ -4,26 +4,27 @@
 namespace App\Admin\Controller;
 
 use App\Admin\Service\BaseService;
+use App\Admin\Validate\BaseValidate;
 use App\Enums\HttpCode;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Str;
 use support\Request;
 use support\Response;
-use think\Validate;
 
 class BaseController
 {
 
-    public BaseService $service;
-    public ?Validate   $validate    = null;
-    public array       $where       = [];
-    public array       $ascOrder    = [];
-    public array       $descOrder   = [];
-    public array       $commonParam = [];
-    public array       $customParam = [];
-    public string      $queryDate   = 'create_time';
-    public string|null $beginTime   = null;
-    public string|null $endTime     = null;
+    public BaseService   $service;
+    public ?BaseValidate $validate    = NULL;
+    public array         $where       = [];
+    public array         $ascOrder    = [];
+    public array         $descOrder   = [];
+    public array         $commonParam = [];
+    public array         $customParam = [];
+    public string        $queryDate   = 'create_time';
+    public string|null   $beginTime   = NULL;
+    public string|null   $endTime     = NULL;
 
     public function __construct()
     {
@@ -89,6 +90,9 @@ class BaseController
         return successJson($this->service->one($id));
     }
 
+    /**
+     * @throws Exception
+     */
     public function add(Request $request): Response
     {
         $creatData = [];
@@ -98,12 +102,9 @@ class BaseController
         $creatData['create_by']   = user()->getName();
         $creatData['create_time'] = Carbon::now();
         if ($this->validate) {
-            if ($this->validate->hasScene('add')) {
-                $this->validate->scene('add');
-            }
-            if (!$this->validate->check($creatData)) {
-                $error = !is_array($this->validate->getError()) ?: implode(';', $this->validate->getError());
-                return failJson($error);
+            $validator = $this->validate->validate($creatData, 'add');
+            if ($validator->stopOnFirstFailure()->fails()) {
+                return failJson($validator->errors()->first());
             }
         }
         if ($this->service->add($creatData)) {
@@ -113,6 +114,9 @@ class BaseController
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function edit(Request $request): Response
     {
         $updateData = [];
@@ -122,12 +126,9 @@ class BaseController
         $updateData['update_by']   = user()->getName();
         $updateData['update_time'] = Carbon::now();
         if ($this->validate) {
-            if ($this->validate->hasScene('edit')) {
-                $this->validate->scene('edit');
-            }
-            if (!$this->validate->check($updateData)) {
-                $error = !is_array($this->validate->getError()) ?: implode(';', $this->validate->getError());
-                return failJson($error);
+            $validator = $this->validate->validate($updateData, 'update');
+            if ($validator->stopOnFirstFailure()->fails()) {
+                return failJson($validator->errors()->first());
             }
         }
         if ($this->service->edit($updateData)) {
