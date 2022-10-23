@@ -20,7 +20,13 @@ class BaseController
     public array         $where       = [];
     public array         $ascOrder    = [];
     public array         $descOrder   = [];
+    /**
+     * @var array|string[] 通用搜索参数
+     */
     public array         $commonParam = [];
+    /**
+     * @var array 不同模型个人性化搜索参数
+     */
     public array         $customParam = [];
     public string        $queryDate   = 'create_time';
     public string|null   $beginTime   = NULL;

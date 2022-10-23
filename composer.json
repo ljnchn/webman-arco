@@ -42,14 +42,14 @@
     "webman/log": "^1.0",
     "ramsey/uuid": "^4.3",
     "s1syphos/php-simple-captcha": "^2.2",
-    "ljnchn/captcha": "^1.1",
     "archtechx/enums": "^0.3.0",
     "jenssegers/agent": "^2.6",
     "zoujingli/ip2region": "^2.0",
     "webman/redis-queue": "^1.2",
     "topthink/think-validate": "^2.0",
     "illuminate/validation": "^9.28",
-    "webman-tech/laravel-validation": "^1.0"
+    "webman-tech/laravel-validation": "^1.0",
+    "webman/captcha": "^1.0"
   },
   "suggest": {
     "ext-event": "For better performance. "
