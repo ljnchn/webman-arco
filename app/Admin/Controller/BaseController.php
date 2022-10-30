@@ -93,7 +93,7 @@ class BaseController
 
     public function one(Request $request, $id): Response
     {
-        return successJson($this->service->one($id));
+        return json($this->service->one($id));
     }
 
     /**

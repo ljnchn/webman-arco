@@ -108,10 +108,9 @@ class BaseService
                 unset($updateData[$key]);
             }
         }
-        $query = $this->model->newQuery();
-        $id    = $updateData[$this->model->getKeyName()];
-        $query->whereKey($id)->update($updateData);
-        return true;
+        $model = $this->model->find($updateData[$this->model->getKeyName()]);
+        $model->fill($updateData);
+        return $model->save();
     }
 
     /**

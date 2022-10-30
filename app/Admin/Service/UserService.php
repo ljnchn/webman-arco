@@ -10,6 +10,7 @@ use App\Admin\Model\User;
 use App\Admin\Model\UserPost;
 use App\Admin\Model\UserRole;
 use App\Enums\CacheType;
+use App\Enums\HttpCode;
 use App\Enums\MenuType;
 use App\Enums\UserStatus;
 use Exception;
@@ -31,7 +32,7 @@ class UserService extends BaseService
     #[ArrayShape(['user' => "array", 'permissions' => "array", 'roles' => "array"])]
     function getUserInfo($uid): array
     {
-        $userModel = $this->query()->with(['dept', 'roles'])->find($uid);
+        $userModel = $this->model->with(['dept', 'roles'])->find($uid);
         if (!$userModel) {
             throw new Exception('数据错误');
         }
@@ -47,7 +48,8 @@ class UserService extends BaseService
             'sex'         => $userModel->sex,
             'status'      => $userModel->status,
             'loginIp'     => $userModel->login_ip,
-            'login_date'  => $userModel->login_date,
+            'loginDate'  => $userModel->login_date,
+            'createTime'  => $userModel->create_time,
             'dept'        => [
                 'ancestors' => $userModel->dept->ancestors,
                 'deptName'  => $userModel->dept->dept_name,
@@ -238,7 +240,7 @@ class UserService extends BaseService
         $postIds = UserPost::where('user_id', $id)->pluck('post_id')->toArray();
         $roleIds = UserRole::where('user_id', $id)->pluck('role_id')->toArray();
         return [
-            'code'    => 200,
+            'code'    => HttpCode::SUCCESS(),
             'msg'     => 'success',
             'data'    => $data,
             'posts'   => getCamelAttributes($postList),
@@ -252,12 +254,12 @@ class UserService extends BaseService
     {
         $userId = $updateData['user_id'];
         parent::edit($updateData);
-        $this->delUserPost($userId);
-        if ($updateData['post_ids']) {
+        if ($updateData['post_ids'] ?? false) {
+            $this->delUserPost($userId);
             $this->addUserPost($userId, $updateData['post_ids']);
         }
-        $this->delUserRole($userId);
-        if ($updateData['role_ids']) {
+        if ($updateData['role_ids'] ?? false) {
+            $this->delUserRole($userId);
             $this->addUserRole($userId, $updateData['role_ids']);
         }
         return true;

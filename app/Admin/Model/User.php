@@ -51,7 +51,25 @@ class User extends Model
      */
     public $timestamps = false;
 
-    protected $fillable = ['*'];
+    protected $fillable = [
+        'dept_id',
+        'user_name',
+        'nick_name',
+        'user_type',
+        'email',
+        'phonenumber',
+        'sex',
+        'avatar',
+        'password',
+        'status',
+        'login_ip',
+        'login_date',
+        'create_by',
+        'create_time',
+        'update_by',
+        'update_time',
+        'remark',
+    ];
 
     use SoftDeletes;
 

@@ -36,6 +36,9 @@ Route::group('/api/', function () {
     Route::get('monitor/cache/getValue/{cacheName}/{cacheKey}', [MonitorController::class, 'view'])->name('monitor:logininfor:list');
     Route::delete('monitor/cache/clearCacheKey/{cacheKey}', [MonitorController::class, 'delete'])->name('monitor:logininfor:list');
 
+    // 个人中心
+    Route::get('system/user/profile', [UserController::class, 'profileView'])->name('system:user:query');
+    Route::put('system/user/profile', [UserController::class, 'edit'])->name('system:user:edit');
     // 用户管理
     Route::get('system/user/list', [UserController::class, 'list'])->name('system:user:list');
     Route::get('system/user/', [UserController::class, 'info'])->name('system:user:query');
