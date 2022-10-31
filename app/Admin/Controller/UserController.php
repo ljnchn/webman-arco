@@ -5,6 +5,7 @@ namespace App\Admin\Controller;
 
 use App\Admin\Model\Post;
 use App\Admin\Model\Role;
+use App\Admin\Model\UserPost;
 use App\Admin\Service\UserService;
 use App\Enums\HttpCode;
 use Exception;
@@ -26,10 +27,10 @@ class UserController extends BaseController
     {
         $postList = Post::get()->toArray();
         $roleList = Role::get()->toArray();
-        array_walk($postList, function (&$value, $key) {
+        array_walk($postList, function (&$value) {
             $value = getCamelAttributes($value);
         });
-        array_walk($roleList, function (&$value, $key) {
+        array_walk($roleList, function (&$value) {
             $value = getCamelAttributes($value);
         });
         return json([
@@ -56,10 +57,16 @@ class UserController extends BaseController
     public function profileView(): Response
     {
         $userInfo = $this->service->getUserInfo(user()->getUid());
+
+        $postGroup = '';
+        $postId = UserPost::where('user_id', user()->getUid())->first()->post_id;
+        if ($postId) {
+            $postGroup = Post::find($postId)->post_name;
+        }
         return json([
             'code'      => HttpCode::SUCCESS(),
             'msg'       => 'success',
-            'postGroup' => '',
+            'postGroup' => $postGroup,
             'roleGroup' => '',
             'data'      => $userInfo['user'],
         ]);

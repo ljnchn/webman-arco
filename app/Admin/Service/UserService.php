@@ -32,7 +32,7 @@ class UserService extends BaseService
     #[ArrayShape(['user' => "array", 'permissions' => "array", 'roles' => "array"])]
     function getUserInfo($uid): array
     {
-        $userModel = $this->model->with(['dept', 'roles'])->find($uid);
+        $userModel = $this->model->newQuery()->with(['dept', 'roles'])->find($uid);
         if (!$userModel) {
             throw new Exception('数据错误');
         }
@@ -48,7 +48,7 @@ class UserService extends BaseService
             'sex'         => $userModel->sex,
             'status'      => $userModel->status,
             'loginIp'     => $userModel->login_ip,
-            'loginDate'  => $userModel->login_date,
+            'loginDate'   => $userModel->login_date,
             'createTime'  => $userModel->create_time,
             'dept'        => [
                 'ancestors' => $userModel->dept->ancestors,
@@ -144,7 +144,7 @@ class UserService extends BaseService
                     'title'   => $menu->menu_name,
                     'icon'    => $menu->icon,
                     'noCache' => $menu->is_cache == 1,
-                    'link'    => $menu->is_frame ? null : $menu->path,
+                    'link'    => $menu->is_frame ? NULL : $menu->path,
                 ],
             ];
             if ($parentId == 0) {

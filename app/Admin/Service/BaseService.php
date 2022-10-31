@@ -7,7 +7,6 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use JetBrains\PhpStorm\ArrayShape;
 use support\Model;
-use think\Validate;
 
 class BaseService
 {
