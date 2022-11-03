@@ -4,33 +4,16 @@ namespace App\Admin\Validate;
 
 class PostValidate extends BaseValidate
 {
-    /**
-     * Get the error messages for the defined validation rules.
-     *
-     * @return array
-     */
-    public function rules(): array
-    {
-        return [
-            'post_code' => 'required|string',
-            'post_name' => 'required|string',
-            'post_sort' => 'required|integer',
-            'status' => 'required|integer',
-        ];
-    }
+    protected $rule = [
+        'post_code' => 'require|max:100',
+        'post_name' => 'require|max:100',
+        'post_sort' => 'require|max:500',
+        'status'    => 'require|max:1',
+    ];
 
-    /**
-     * Get custom attributes for validator errors.
-     *
-     * @return array
-     */
-    public function attributes(): array
-    {
-        return [
-            'post_code' => '岗位编码',
-            'post_name' => '岗位名称',
-            'remark' => '备注',
-        ];
-    }
+    protected $message = [
+        'post_code.require' => '名称必须',
+        'post_name.max'     => '名称最多不能超过100个字符',
+    ];
 
 }
