@@ -16,16 +16,16 @@ use App\Enums\HttpCode;
 use Webman\Route;
 
 Route::fallback(function(){
-    response()->withHeaders([
+    $headers = [
         'Access-Control-Allow-Credentials' => 'true',
         'Access-Control-Allow-Origin' => request()->header('Origin', '*'),
         'Access-Control-Allow-Methods' => '*',
         'Access-Control-Allow-Headers' => '*',
-    ]);
+    ];
     if (request()->method() == 'OPTIONS') {
-        return response();
+        return response()->withHeaders($headers);
     }
-    return apiJson([], HttpCode::NOTFOUND());
+    return response('', HttpCode::NOTFOUND(), $headers);
 });
 
 

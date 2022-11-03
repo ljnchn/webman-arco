@@ -9,17 +9,17 @@ class AccessControl implements MiddlewareInterface
 {
     public function process(Request $request, callable $handler) : Response
     {
-        $header = [
+        $headers = [
             'Access-Control-Allow-Credentials' => 'true',
             'Access-Control-Allow-Origin' => $request->header('Origin', '*'),
             'Access-Control-Allow-Methods' => '*',
             'Access-Control-Allow-Headers' => '*',
         ];
+        $response = $request->method() == 'OPTIONS' ? response('') : $handler($request);
 
-        if ($request->method() == 'OPTIONS') {
-            return response('', 200, $header);
-        }
+        // 给响应添加跨域相关的http头
+        $response->withHeaders($headers);
 
-        return $handler($request)->withHeaders($header);
+        return $response;
     }
 }
