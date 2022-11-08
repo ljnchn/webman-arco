@@ -59,7 +59,7 @@ class UserController extends BaseController
         $userInfo = $this->service->getUserInfo(user()->getUid());
 
         $postGroup = '';
-        $postId = UserPost::where('user_id', user()->getUid())->first()->post_id;
+        $postId = UserPost::where('user_id', user()->getUid())->first()?->post_id;
         if ($postId) {
             $postGroup = Post::find($postId)->post_name;
         }

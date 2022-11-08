@@ -8,6 +8,12 @@ class BaseValidate extends Validate
 {
 
     /**
+     * 是否过滤字段
+     * @var bool
+     */
+    protected $filter = false;
+
+    /**
      * 是否批量认证
      * @var bool
      */
@@ -41,6 +47,9 @@ class BaseValidate extends Validate
      */
     function filterData(array $data, string $scene = ''): array
     {
+        if (!$this->filter) {
+            return $data;
+        }
         $fields = $this->scene[$scene] ?? array_keys($this->rule);
         foreach ($data as $k => $v) {
             if (!in_array($k, $fields)) {

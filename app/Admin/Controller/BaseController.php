@@ -108,6 +108,7 @@ class BaseController
         $creatData['create_by']   = user()->getName();
         $creatData['create_time'] = Carbon::now();
         if ($this->validate) {
+            $creatData = $this->validate->filterData($creatData, 'edit');
             if ($this->validate->scene('add')->check($creatData)) {
                 return failJson($this->validate->getError());
             }
@@ -131,6 +132,7 @@ class BaseController
         $updateData['update_by']   = user()->getName();
         $updateData['update_time'] = Carbon::now();
         if ($this->validate) {
+            $updateData = $this->validate->filterData($updateData, 'edit');
             if ($this->validate->scene('edit')->check($updateData)) {
                 return failJson($this->validate->getError());
             }
