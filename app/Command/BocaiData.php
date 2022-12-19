@@ -42,7 +42,28 @@ class BocaiData extends Command
         $data = [];
         Db::table('bocai_user')->orderBy('uid')->chunk(200, function ($models) use (&$data) {
             foreach ($models as $model) {
-                $data[$model->uid] = [$model->xe, $model->xe_add, $model->bat_num, $model->win_num];
+                $type = 0;
+                if ($model->level == '小恶魔' && $model->jifen_start < 20000) {
+                    $type = 1;
+                } elseif ($model->xe_add >= 100000) {
+                    $type = 2;
+                } elseif ($model->xe_add <= -100000) {
+                    $type = 3;
+                } elseif ($model->xe_add > -1000 && $model->xe_add < 1000) {
+                    $type = 4;
+                } elseif ($model->level == '亡灵') {
+                    $type = 5;
+                } elseif ($model->bat_num >= 35) {
+                    $type = 6;
+                } elseif ($model->bat_num <= 5) {
+                    $type = 7;
+                } elseif (($model->win_num / $model->bat_num) > 0.7) {
+                    $type = 8;
+                } elseif (($model->win_num / $model->bat_num) < 0.3) {
+                    $type = 9;
+                }
+
+                $data[$model->uid] = [$model->xe, $model->xe_add, $model->bat_num, $model->win_num, [], $type];
             }
         });
         Db::table('bocai_bat')->orderBy('uid')->orderBy('game_num')->chunk(200, function ($models) use (&$data) {
@@ -77,7 +98,7 @@ class BocaiData extends Command
                 'num' => 0,
             ], // 单独最大支出
             'max_out' => [
-                'id'    => 0,
+                'id'  => 0,
                 'num' => 0,
             ], // 单局最大收入
             'in'      => 0, // 累计加分
@@ -200,7 +221,7 @@ class BocaiData extends Command
         $levelList = Db::table('bocai_user')->select(DB::raw('`level`, COUNT(*) as a'))->groupBy('level')->get();
         $levelData = [];
         foreach ($levelList as $v) {
-            if (in_array($v->level, ['禁止访问', '禁止发言' , '认证商家', '亡灵苦工', '见习-迪亚波罗', '圣魔使-迪亚波罗'])) {
+            if (in_array($v->level, ['禁止访问', '禁止发言', '认证商家', '亡灵苦工', '见习-迪亚波罗', '圣魔使-迪亚波罗'])) {
                 continue;
             }
             $levelData[] = [
@@ -210,14 +231,14 @@ class BocaiData extends Command
         }
         $winData = [
             [
-                'name' => '盈利人数',
+                'name'  => '盈利人数',
                 'value' => Db::table('bocai_user')->where('bat_num', '>', 0)->where('xe_add', '>', 0)->count(),
             ],
             [
-                'name' => '亏损人数',
+                'name'  => '亏损人数',
                 'value' => Db::table('bocai_user')->where('bat_num', '>', 0)->where('xe_add', '<', 0)->count(),
-            ],            [
-                'name' => '持平人数',
+            ], [
+                'name'  => '持平人数',
                 'value' => Db::table('bocai_user')->where('bat_num', '>', 0)->where('xe_add', 0)->count(),
             ],
 
@@ -233,7 +254,7 @@ class BocaiData extends Command
             'growBankData'  => $growBankData,
             'numBankData'   => $numBankData,
             'levelData'     => $levelData,
-            'winData'     => $winData,
+            'winData'       => $winData,
         ];
 
         file_put_contents('/mnt/c/dev/bocai/game/data.json', json_encode($jsonData));
