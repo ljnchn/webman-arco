@@ -160,7 +160,7 @@ class Bocai extends Command
     {
         $url   = 'https://www.chiphell.com/thread-2468586-5-1.html';
 //        $this->getPageItemData($url, 32);
-        $games = Db::table('bocai_game')->where('gid', '>', 41)->orderBy('id')->get();
+        $games = Db::table('bocai_game')->where('gid', '>', 44)->orderBy('id')->get();
         foreach ($games as $game) {
             $this->getPageItemData($game->url, $game->id);
         }
