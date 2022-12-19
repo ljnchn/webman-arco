@@ -47,7 +47,8 @@
     "zoujingli/ip2region": "^2.0",
     "webman/redis-queue": "^1.2",
     "topthink/think-validate": "^2.0",
-    "webman/captcha": "^1.0"
+    "webman/captcha": "^1.0",
+    "paquettg/php-html-parser": "^3.1"
   },
   "suggest": {
     "ext-event": "For better performance. "
