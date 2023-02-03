@@ -36,7 +36,7 @@ class Bocai extends Command
         $name = $input->getArgument('name');
         $output->writeln('Hello Bocai');
 //        $this->generateBatData();
-        $this->getPageData();
+//        $this->getPageData();
         $this->generateUserData();
         $this->generateGameData();
         return self::SUCCESS;
