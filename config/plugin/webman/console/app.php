@@ -13,6 +13,6 @@ return [
     'exclude_pattern' => '#^(?!.*(config/plugin/webman/console/app.php|webman/console/src/Commands/(PharPackCommand.php|ReloadCommand.php)|LICENSE|composer.json|.github|.idea|doc|docs|.git|.setting|runtime|test|test_old|tests|Tests|vendor-bin|.md))(.*)$#',
 
     'exclude_files' => [
-        '.env', 'LICENSE', 'composer.json', 'composer.lock', 'start.php'
+        'LICENSE', 'composer.json', 'composer.lock', 'start.php'
     ]
 ];
